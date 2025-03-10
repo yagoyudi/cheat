@@ -55,13 +55,12 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		if initFlag {
-			// get the user's home directory
-			home, err := os.UserHomeDir()
-			if err != nil {
-				return err
-			}
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return err
+		}
 
+		if initFlag {
 			// read the envvars into a map of strings
 			envvars := map[string]string{}
 			for _, e := range os.Environ() {
@@ -97,13 +96,8 @@ var rootCmd = &cobra.Command{
 			return nil
 		}
 
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			return err
-		}
-
 		configPath := filepath.Join(
-			homeDir,
+			home,
 			".config",
 			"cheat",
 			"config.yaml",
