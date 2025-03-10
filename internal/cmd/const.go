@@ -5,7 +5,7 @@ const configTemplate = `---
 editor: EDITOR_PATH
 
 # Should 'cheat' always colorize output?
-colorize: false
+colorize: true
 
 # Which 'chroma' colorscheme should be applied to the output?
 # Options are available here:
