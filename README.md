@@ -1,3 +1,9 @@
+> **Notice:** This repository is an **independent fork** of
+> [cheat/cheat](https://github.com/cheat/cheat). The original code was licensed
+> under the [LICENSE.old](./LICENSE.old), and while the original license
+> applies to the base code, the code that has been modified or added by me is
+> licensed under [LICENSE.new](./LICENSE.new).
+
 # Cheat
 
 `cheat` allows you to create and view interactive cheatsheets on the
