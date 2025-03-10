@@ -7,7 +7,7 @@ remember.
 
 ![The obligatory xkcd](http://imgs.xkcd.com/comics/tar.png 'The obligatory xkcd')
 
-Use `cheat` with [cheatsheets][].
+Use `cheat` with [cheatsheets](https://github.com/cheat/cheatsheets).
 
 ## Example
 
@@ -96,11 +96,15 @@ Flags may be combined in intuitive ways. Example: to search sheets on the
 cheat search '(?:[0-9]{1,3}\.){3}[0-9]{1,3}' -p personal -t networking --regex
 ```
 
-
-
 ## Installing
 
-For installation and configuration instructions, see [INSTALLING.md][].
+```sh
+# If you have mage installed:
+mage
+
+# Else:
+go run mage.go
+```
 
 ## Cheatsheets
 
