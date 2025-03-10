@@ -21,17 +21,42 @@ func init() {
 		fmt.Fprintf(os.Stderr, "cheat: cmd: %v", err)
 		os.Exit(1)
 	}
-	path := filepath.Join(
-		home,
-		".config",
-		"cheat",
-	)
-	viper.AddConfigPath(path)
+	configPath := filepath.Join(home, ".config", "cheat")
+	configFile := filepath.Join(configPath, "config.yaml")
+	viper.AddConfigPath(configPath)
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Fprintf(os.Stderr, "cheat: cmd: %v", err)
-		os.Exit(1)
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			// prompt the user to create a config file
+			yes, err := installer.Prompt(
+				"A config file was not found. Would you like to create one now? [Y/n]",
+				true,
+			)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "cheat: cmd: %v\n", err)
+				os.Exit(1)
+			}
+
+			// exit early on a negative answer
+			if !yes {
+				os.Exit(0)
+			}
+
+			// run the installer
+			if err := installer.Run(configTemplate, configFile); err != nil {
+				fmt.Fprintf(os.Stderr, "cheat: cmd: %v\n", err)
+				os.Exit(1)
+			}
+
+			// notify the user and exit
+			fmt.Printf("Created config file: %s\n", configFile)
+			fmt.Println("Please read this file for advanced configuration information.")
+			fmt.Println()
+		} else {
+			fmt.Fprintf(os.Stderr, "cheat: cmd: %v\n", err)
+			os.Exit(1)
+		}
 	}
 
 	rootCmd.AddCommand(listCmd)
@@ -47,7 +72,7 @@ func init() {
 
 var rootCmd = &cobra.Command{
 	Use:   "cheat",
-	Short: "Allows you to create and view interactive cheatsheets on the command-line.",
+	Short: "Cheat allows you to create and view interactive cheatsheets on the command-line.",
 	Long:  "It was designed to help remind *nix system administrators of options for commands that they use frequently, but not frequently enough to remember.",
 	RunE: func(cmd *cobra.Command, _ []string) error {
 		initFlag, err := cmd.Flags().GetBool("init")
@@ -55,12 +80,12 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return err
-		}
-
 		if initFlag {
+			home, err := os.UserHomeDir()
+			if err != nil {
+				return err
+			}
+
 			// read the envvars into a map of strings
 			envvars := map[string]string{}
 			for _, e := range os.Environ() {
@@ -94,39 +119,6 @@ var rootCmd = &cobra.Command{
 			fmt.Println(configs)
 
 			return nil
-		}
-
-		configPath := filepath.Join(
-			home,
-			".config",
-			"cheat",
-			"config.yaml",
-		)
-
-		_, err = os.Stat(configPath)
-		if os.IsNotExist(err) {
-			// prompt the user to create a config file
-			yes, err := installer.Prompt(
-				"A config file was not found. Would you like to create one now? [Y/n]",
-				true,
-			)
-			if err != nil {
-				return err
-			}
-
-			// exit early on a negative answer
-			if !yes {
-				os.Exit(0)
-			}
-
-			// run the installer
-			if err := installer.Run(configTemplate, configPath); err != nil {
-				return err
-			}
-
-			// notify the user and exit
-			fmt.Printf("Created config file: %s\n", configPath)
-			fmt.Println("Please read this file for advanced configuration information.")
 		}
 
 		fmt.Println(cmd.Short + "\n" + cmd.Long + "\n")
