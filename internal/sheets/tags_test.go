@@ -6,7 +6,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 
-	"github.com/cheat/cheat/internal/sheet"
+	"github.com/yagoyudi/cheat/internal/sheet"
 )
 
 // TestTags asserts that cheatsheet tags are properly returned

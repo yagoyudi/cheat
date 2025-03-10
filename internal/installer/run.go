@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cheat/cheat/internal/config"
-	"github.com/cheat/cheat/internal/repo"
+	"github.com/yagoyudi/cheat/internal/config"
+	"github.com/yagoyudi/cheat/internal/repo"
 )
 
 // Run runs the installer

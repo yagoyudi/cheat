@@ -4,8 +4,8 @@ import (
 	"path"
 	"testing"
 
-	"github.com/cheat/cheat/internal/cheatpath"
-	"github.com/cheat/cheat/internal/mock"
+	"github.com/yagoyudi/cheat/internal/cheatpath"
+	"github.com/yagoyudi/cheat/internal/mock"
 )
 
 // TestLoad asserts that sheets on valid cheatpaths can be loaded successfully

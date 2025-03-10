@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/cheat/cheat/internal/config"
+	"github.com/yagoyudi/cheat/internal/config"
 )
 
 // Write writes output either directly to stdout, or through a pager,

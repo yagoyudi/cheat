@@ -3,7 +3,7 @@ package sheets
 import (
 	"strings"
 
-	"github.com/cheat/cheat/internal/sheet"
+	"github.com/yagoyudi/cheat/internal/sheet"
 )
 
 // Filter filters cheatsheets that do not match `tag(s)`

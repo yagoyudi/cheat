@@ -3,7 +3,7 @@ package sheet
 import (
 	"bytes"
 
-	"github.com/cheat/cheat/internal/config"
+	"github.com/yagoyudi/cheat/internal/config"
 
 	"github.com/alecthomas/chroma/v2/quick"
 )

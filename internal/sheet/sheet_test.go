@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/cheat/cheat/internal/mock"
+	"github.com/yagoyudi/cheat/internal/mock"
 )
 
 // TestSheetSuccess asserts that sheets initialize properly

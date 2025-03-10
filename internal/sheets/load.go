@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	cp "github.com/cheat/cheat/internal/cheatpath"
-	"github.com/cheat/cheat/internal/repo"
-	"github.com/cheat/cheat/internal/sheet"
+	cp "github.com/yagoyudi/cheat/internal/cheatpath"
+	"github.com/yagoyudi/cheat/internal/repo"
+	"github.com/yagoyudi/cheat/internal/sheet"
 )
 
 // Load produces a map of cheatsheet titles to filesystem paths
