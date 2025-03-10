@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/yagoyudi/cheat/internal/cheatpath"
 	"github.com/yagoyudi/cheat/internal/config"
 	"github.com/yagoyudi/cheat/internal/display"
 	"github.com/yagoyudi/cheat/internal/sheets"
@@ -17,6 +18,7 @@ func init() {
 	searchCmd.Flags().StringP("tag", "t", "", "filter cheatsheets by tag")
 	searchCmd.Flags().StringP("cheatsheet", "c", "", "constrain the search only to matching cheatsheets")
 	searchCmd.Flags().BoolP("regex", "r", false, "treat search <phrase> as a regex")
+	searchCmd.Flags().StringP("path", "p", "", "filter the cheatpaths")
 }
 
 var searchCmd = &cobra.Command{
@@ -25,10 +27,6 @@ var searchCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		phrase := args[0]
 
-		tags, err := cmd.Flags().GetString("tag")
-		if err != nil {
-			return err
-		}
 		regexFlag, err := cmd.Flags().GetBool("regex")
 		if err != nil {
 			return err
@@ -43,15 +41,29 @@ var searchCmd = &cobra.Command{
 			return err
 		}
 
+		if cmd.Flags().Changed("path") {
+			path, err := cmd.Flags().GetString("path")
+			if err != nil {
+				return err
+			}
+			conf.Cheatpaths, err = cheatpath.Filter(conf.Cheatpaths, path)
+			if err != nil {
+				return err
+			}
+		}
+
 		// load the cheatsheets
 		cheatsheets, err := sheets.Load(conf.Cheatpaths)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "failed to list cheatsheets: %v\n", err)
-			os.Exit(1)
+			return err
 		}
 
 		// filter cheatcheats by tag if --tag was provided
 		if cmd.Flags().Changed("tag") {
+			tags, err := cmd.Flags().GetString("tag")
+			if err != nil {
+				return err
+			}
 			cheatsheets = sheets.Filter(
 				cheatsheets,
 				strings.Split(tags, ","),

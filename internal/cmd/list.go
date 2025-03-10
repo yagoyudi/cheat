@@ -11,6 +11,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/yagoyudi/cheat/internal/cheatpath"
 	"github.com/yagoyudi/cheat/internal/config"
 	"github.com/yagoyudi/cheat/internal/display"
 	"github.com/yagoyudi/cheat/internal/sheet"
@@ -19,20 +20,27 @@ import (
 
 func init() {
 	listCmd.Flags().StringP("tag", "t", "", "filter cheatsheets by tag")
+	listCmd.Flags().StringP("path", "p", "", "filter cheatpath")
 }
 
 var listCmd = &cobra.Command{
 	Use:   "ls [cheatsheet]",
 	Short: "Lists all available cheatsheets",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		tag, err := cmd.Flags().GetString("tag")
-		if err != nil {
-			return err
-		}
-
 		var conf config.Config
 		if err := viper.Unmarshal(&conf); err != nil {
 			return err
+		}
+
+		if cmd.Flags().Changed("path") {
+			path, err := cmd.Flags().GetString("path")
+			if err != nil {
+				return err
+			}
+			conf.Cheatpaths, err = cheatpath.Filter(conf.Cheatpaths, path)
+			if err != nil {
+				return err
+			}
 		}
 
 		// load the cheatsheets
@@ -43,6 +51,10 @@ var listCmd = &cobra.Command{
 
 		// filter cheatsheets by tag if --tag was provided
 		if cmd.Flags().Changed("tag") {
+			tag, err := cmd.Flags().GetString("tag")
+			if err != nil {
+				return err
+			}
 			cheatsheets = sheets.Filter(
 				cheatsheets,
 				strings.Split(tag, ","),

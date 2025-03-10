@@ -42,7 +42,7 @@ func init() {
 	rootCmd.AddCommand(removeCmd)
 	rootCmd.AddCommand(searchCmd)
 
-	rootCmd.Flags().BoolP("init", "i", false, "Write a default config file to stdout")
+	rootCmd.Flags().BoolP("init", "i", false, "write a default config file to stdout")
 }
 
 var rootCmd = &cobra.Command{
