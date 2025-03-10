@@ -22,7 +22,7 @@ func init() {
 }
 
 var listCmd = &cobra.Command{
-	Use:   "list [cheatsheet]",
+	Use:   "ls [cheatsheet]",
 	Short: "Lists all available cheatsheets",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		tag, err := cmd.Flags().GetString("tag")

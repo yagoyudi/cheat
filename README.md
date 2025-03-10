@@ -66,19 +66,19 @@ cheat dirs
 To list all available cheatsheets:
 
 ```sh
-cheat list
+cheat ls
 ```
 
 To list all cheatsheets that are tagged with "networking":
 
 ```sh
-cheat list -t networking
+cheat ls -t networking
 ```
 
 To list all cheatsheets on the "personal" path:
 
 ```sh
-cheat list -p personal
+cheat ls -p personal
 ```
 
 To search for the phrase "ssh" among cheatsheets:
