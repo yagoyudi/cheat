@@ -1,0 +1,151 @@
+package cmd
+
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"github.com/yagoyudi/cheat/internal/config"
+	"github.com/yagoyudi/cheat/internal/installer"
+)
+
+func init() {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	home, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "cheat: cmd: %v", err)
+		os.Exit(1)
+	}
+	path := filepath.Join(
+		home,
+		".config",
+		"cheat",
+	)
+	viper.AddConfigPath(path)
+	viper.AutomaticEnv()
+
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Fprintf(os.Stderr, "cheat: cmd: %v", err)
+		os.Exit(1)
+	}
+
+	rootCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(viewCmd)
+	rootCmd.AddCommand(editCmd)
+	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(directoriesCmd)
+	rootCmd.AddCommand(removeCmd)
+	rootCmd.AddCommand(searchCmd)
+
+	rootCmd.Flags().BoolP("init", "i", false, "Write a default config file to stdout")
+}
+
+var rootCmd = &cobra.Command{
+	Use:   "cheat",
+	Short: "Allows you to create and view interactive cheatsheets on the command-line.",
+	Long:  "It was designed to help remind *nix system administrators of options for commands that they use frequently, but not frequently enough to remember.",
+	RunE: func(cmd *cobra.Command, _ []string) error {
+		initFlag, err := cmd.Flags().GetBool("init")
+		if err != nil {
+			return err
+		}
+
+		if initFlag {
+			// get the user's home directory
+			home, err := os.UserHomeDir()
+			if err != nil {
+				return err
+			}
+
+			// read the envvars into a map of strings
+			envvars := map[string]string{}
+			for _, e := range os.Environ() {
+				pair := strings.SplitN(e, "=", 2)
+				envvars[pair[0]] = pair[1]
+			}
+
+			// load the config template
+			configs := configTemplate
+
+			// identify the os-specifc paths at which configs may be located
+			confpaths, err := config.Paths(runtime.GOOS, home, envvars)
+			if err != nil {
+				return err
+			}
+
+			// determine the appropriate paths for config data and (optional) community
+			// cheatsheets based on the user's platform
+			confpath := confpaths[0]
+			confdir := filepath.Dir(confpath)
+
+			// create paths for community and personal cheatsheets
+			community := filepath.Join(confdir, "cheatsheets", "community")
+			personal := filepath.Join(confdir, "cheatsheets", "personal")
+
+			// template the above paths into the default configs
+			configs = strings.Replace(configs, "COMMUNITY_PATH", community, -1)
+			configs = strings.Replace(configs, "PERSONAL_PATH", personal, -1)
+
+			// output the templated configs
+			fmt.Println(configs)
+
+			return nil
+		}
+
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return err
+		}
+
+		configPath := filepath.Join(
+			homeDir,
+			".config",
+			"cheat",
+			"config.yaml",
+		)
+
+		_, err = os.Stat(configPath)
+		if os.IsNotExist(err) {
+			// prompt the user to create a config file
+			yes, err := installer.Prompt(
+				"A config file was not found. Would you like to create one now? [Y/n]",
+				true,
+			)
+			if err != nil {
+				return err
+			}
+
+			// exit early on a negative answer
+			if !yes {
+				os.Exit(0)
+			}
+
+			// run the installer
+			if err := installer.Run(configTemplate, configPath); err != nil {
+				return err
+			}
+
+			// notify the user and exit
+			fmt.Printf("Created config file: %s\n", configPath)
+			fmt.Println("Please read this file for advanced configuration information.")
+		}
+
+		fmt.Println(cmd.Short + "\n" + cmd.Long + "\n")
+		cmd.Usage()
+
+		return nil
+	},
+}
+
+func Execute() error {
+	err := rootCmd.Execute()
+	if err != nil {
+		return fmt.Errorf("cmd: %v", err)
+	}
+	return nil
+}

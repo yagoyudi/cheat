@@ -21,7 +21,7 @@ func Prompt(prompt string, def bool) (bool, error) {
 	// read the answer
 	ans, err := reader.ReadString('\n')
 	if err != nil {
-		return false, fmt.Errorf("failed to parse input: %v", err)
+		return false, fmt.Errorf("installer: %v", err)
 	}
 
 	// normalize the answer

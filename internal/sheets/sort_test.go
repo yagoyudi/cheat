@@ -3,7 +3,7 @@ package sheets
 import (
 	"testing"
 
-	"github.com/cheat/cheat/internal/sheet"
+	"github.com/yagoyudi/cheat/internal/sheet"
 )
 
 // TestSort asserts that Sort properly sorts sheets

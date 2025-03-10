@@ -3,23 +3,16 @@ package config
 import (
 	"fmt"
 	"path/filepath"
-
-	"github.com/mitchellh/go-homedir"
 )
 
 // Paths returns config file paths that are appropriate for the operating
 // system
-func Paths(
-	sys string,
-	home string,
-	envvars map[string]string,
-) ([]string, error) {
+func Paths(sys string, home string, envvars map[string]string) ([]string, error) {
 
 	// if `CHEAT_CONFIG_PATH` is set, expand ~ and return it
 	if confpath, ok := envvars["CHEAT_CONFIG_PATH"]; ok {
-
 		// expand ~
-		expanded, err := homedir.Expand(confpath)
+		expanded, err := expandPath(confpath)
 		if err != nil {
 			return []string{}, fmt.Errorf("failed to expand ~: %v", err)
 		}
@@ -28,7 +21,6 @@ func Paths(
 	}
 
 	switch sys {
-
 	// darwin/linux/unix
 	case "aix", "android", "darwin", "dragonfly", "freebsd", "illumos", "ios",
 		"linux", "netbsd", "openbsd", "plan9", "solaris":

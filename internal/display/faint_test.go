@@ -3,7 +3,7 @@ package display
 import (
 	"testing"
 
-	"github.com/cheat/cheat/internal/config"
+	"github.com/yagoyudi/cheat/internal/config"
 )
 
 // TestFaint asserts that Faint applies faint formatting

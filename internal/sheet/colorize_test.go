@@ -3,7 +3,7 @@ package sheet
 import (
 	"testing"
 
-	"github.com/cheat/cheat/internal/config"
+	"github.com/yagoyudi/cheat/internal/config"
 )
 
 // TestColorize asserts that syntax-highlighting is correctly applied

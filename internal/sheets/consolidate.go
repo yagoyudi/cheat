@@ -3,7 +3,7 @@
 package sheets
 
 import (
-	"github.com/cheat/cheat/internal/sheet"
+	"github.com/yagoyudi/cheat/internal/sheet"
 )
 
 // Consolidate applies cheatsheet "overrides", resolving title conflicts that

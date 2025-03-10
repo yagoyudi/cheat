@@ -7,10 +7,9 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/mitchellh/go-homedir"
 
-	"github.com/cheat/cheat/internal/cheatpath"
-	"github.com/cheat/cheat/internal/mock"
+	"github.com/yagoyudi/cheat/internal/cheatpath"
+	"github.com/yagoyudi/cheat/internal/mock"
 )
 
 // TestConfig asserts that the configs are loaded correctly
@@ -31,24 +30,24 @@ func TestConfigSuccessful(t *testing.T) {
 	}
 
 	// get the user's home directory (with ~ expanded)
-	home, err := homedir.Dir()
+	home, err := os.UserHomeDir()
 	if err != nil {
 		t.Errorf("failed to get homedir: %v", err)
 	}
 
 	// assert that the cheatpaths are correct
 	want := []cheatpath.Cheatpath{
-		cheatpath.Cheatpath{
+		{
 			Path:     filepath.Join(home, ".dotfiles", "cheat", "community"),
 			ReadOnly: true,
 			Tags:     []string{"community"},
 		},
-		cheatpath.Cheatpath{
+		{
 			Path:     filepath.Join(home, ".dotfiles", "cheat", "work"),
 			ReadOnly: false,
 			Tags:     []string{"work"},
 		},
-		cheatpath.Cheatpath{
+		{
 			Path:     filepath.Join(home, ".dotfiles", "cheat", "personal"),
 			ReadOnly: false,
 			Tags:     []string{"personal"},

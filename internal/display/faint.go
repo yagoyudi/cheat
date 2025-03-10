@@ -5,7 +5,7 @@ package display
 import (
 	"fmt"
 
-	"github.com/cheat/cheat/internal/config"
+	"github.com/yagoyudi/cheat/internal/config"
 )
 
 // Faint returns a faintly-colored string that's used to de-prioritize text

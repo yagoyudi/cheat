@@ -7,9 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	cp "github.com/cheat/cheat/internal/cheatpath"
+	cp "github.com/yagoyudi/cheat/internal/cheatpath"
 
-	"github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v3"
 )
 
@@ -67,7 +66,7 @@ func New(_ map[string]interface{}, confPath string, resolve bool) (Config, error
 	for i, cheatpath := range conf.Cheatpaths {
 
 		// expand ~ in config paths
-		expanded, err := homedir.Expand(cheatpath.Path)
+		expanded, err := expandPath(cheatpath.Path)
 		if err != nil {
 			return Config{}, fmt.Errorf("failed to expand ~: %v", err)
 		}

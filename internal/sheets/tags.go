@@ -3,7 +3,7 @@ package sheets
 import (
 	"sort"
 
-	"github.com/cheat/cheat/internal/sheet"
+	"github.com/yagoyudi/cheat/internal/sheet"
 )
 
 // Tags returns a slice of all tags in use in any sheet

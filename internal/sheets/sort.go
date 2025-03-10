@@ -3,7 +3,7 @@ package sheets
 import (
 	"sort"
 
-	"github.com/cheat/cheat/internal/sheet"
+	"github.com/yagoyudi/cheat/internal/sheet"
 )
 
 // Sort organizes the cheatsheets into an alphabetically-sorted slice
