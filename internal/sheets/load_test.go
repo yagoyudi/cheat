@@ -4,6 +4,7 @@ import (
 	"path"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/yagoyudi/cheat/internal/cheatpath"
 	"github.com/yagoyudi/cheat/internal/mock"
 )
@@ -27,20 +28,12 @@ func TestLoad(t *testing.T) {
 
 	// load cheatsheets
 	sheets, err := Load(cheatpaths)
-	if err != nil {
-		t.Errorf("failed to load cheatsheets: %v", err)
-	}
+	assert.NoError(t, err, "failed to load cheatsheets")
 
 	// assert that the correct number of sheets loaded
 	// (sheet load details are tested in `sheet_test.go`)
 	want := 4
-	if len(sheets) != want {
-		t.Errorf(
-			"failed to load correct number of cheatsheets: want: %d, got: %d",
-			want,
-			len(sheets),
-		)
-	}
+	assert.Equal(t, want, len(sheets), "failed to load correct number of cheatsheets")
 }
 
 // TestLoadBadPath asserts that an error is returned if a cheatpath is invalid
@@ -56,7 +49,6 @@ func TestLoadBadPath(t *testing.T) {
 	}
 
 	// attempt to load the cheatpath
-	if _, err := Load(cheatpaths); err == nil {
-		t.Errorf("failed to reject invalid cheatpath")
-	}
+	_, err := Load(cheatpaths)
+	assert.Error(t, err, "failed to reject invalid cheatpath")
 }

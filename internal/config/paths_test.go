@@ -1,10 +1,9 @@
 package config
 
 import (
-	"reflect"
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
+	"github.com/stretchr/testify/assert"
 )
 
 // TestValidatePathsNix asserts that the proper config paths are returned on
@@ -31,9 +30,7 @@ func TestValidatePathsNix(t *testing.T) {
 	for _, os := range oses {
 		// get the paths for the platform
 		paths, err := Paths(os, home, envvars)
-		if err != nil {
-			t.Errorf("paths returned an error: %v", err)
-		}
+		assert.NoError(t, err, "paths returned an error")
 
 		// specify the expected output
 		want := []string{
@@ -44,13 +41,7 @@ func TestValidatePathsNix(t *testing.T) {
 		}
 
 		// assert that output matches expectations
-		if !reflect.DeepEqual(paths, want) {
-			t.Errorf(
-				"failed to return expected paths: want:\n%s, got:\n%s",
-				spew.Sdump(want),
-				spew.Sdump(paths),
-			)
-		}
+		assert.Equal(t, want, paths, "failed to return exptected paths")
 	}
 }
 
@@ -75,9 +66,7 @@ func TestValidatePathsNixNoXDG(t *testing.T) {
 	for _, os := range oses {
 		// get the paths for the platform
 		paths, err := Paths(os, home, envvars)
-		if err != nil {
-			t.Errorf("paths returned an error: %v", err)
-		}
+		assert.NoError(t, err, "paths returned an error")
 
 		// specify the expected output
 		want := []string{
@@ -87,13 +76,7 @@ func TestValidatePathsNixNoXDG(t *testing.T) {
 		}
 
 		// assert that output matches expectations
-		if !reflect.DeepEqual(paths, want) {
-			t.Errorf(
-				"failed to return expected paths: want:\n%s, got:\n%s",
-				spew.Sdump(want),
-				spew.Sdump(paths),
-			)
-		}
+		assert.Equal(t, want, paths, "failed to return exptected paths")
 	}
 }
 
@@ -112,9 +95,7 @@ func TestValidatePathsWindows(t *testing.T) {
 
 	// get the paths for the platform
 	paths, err := Paths("windows", home, envvars)
-	if err != nil {
-		t.Errorf("paths returned an error: %v", err)
-	}
+	assert.NoError(t, err, "paths returned an error")
 
 	// specify the expected output
 	want := []string{
@@ -122,23 +103,14 @@ func TestValidatePathsWindows(t *testing.T) {
 		"/programs/cheat/conf.yml",
 	}
 
-	// assert that output matches expectations
-	if !reflect.DeepEqual(paths, want) {
-		t.Errorf(
-			"failed to return expected paths: want:\n%s, got:\n%s",
-			spew.Sdump(want),
-			spew.Sdump(paths),
-		)
-	}
+	assert.Equal(t, want, paths, "failed to return exptected paths")
 }
 
 // TestValidatePathsUnsupported asserts that an error is returned on
 // unsupported platforms
 func TestValidatePathsUnsupported(t *testing.T) {
 	_, err := Paths("unsupported", "", map[string]string{})
-	if err == nil {
-		t.Errorf("failed to return error on unsupported platform")
-	}
+	assert.Error(t, err, "failed to return error on unsupported platform")
 }
 
 // TestValidatePathsCheatConfigPath asserts that the proper config path is
@@ -156,9 +128,7 @@ func TestValidatePathsCheatConfigPath(t *testing.T) {
 
 	// get the paths for the platform
 	paths, err := Paths("linux", home, envvars)
-	if err != nil {
-		t.Errorf("paths returned an error: %v", err)
-	}
+	assert.NoError(t, err, "paths returned an error")
 
 	// specify the expected output
 	want := []string{
@@ -166,11 +136,5 @@ func TestValidatePathsCheatConfigPath(t *testing.T) {
 	}
 
 	// assert that output matches expectations
-	if !reflect.DeepEqual(paths, want) {
-		t.Errorf(
-			"failed to return expected paths: want:\n%s, got:\n%s",
-			spew.Sdump(want),
-			spew.Sdump(paths),
-		)
-	}
+	assert.Equal(t, want, paths, "failed to return expected paths")
 }

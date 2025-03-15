@@ -2,6 +2,8 @@ package sheet
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestTagged ensures that tags are properly recognized as being absent or
@@ -14,13 +16,9 @@ func TestTagged(t *testing.T) {
 
 	// assert that set tags are recognized as set
 	for _, tag := range tags {
-		if sheet.Tagged(tag) == false {
-			t.Errorf("failed to recognize tag: %s", tag)
-		}
+		assert.NotEqual(t, false, sheet.Tagged(tag), "failed to recognize tag")
 	}
 
 	// assert that unset tags are recognized as unset
-	if sheet.Tagged("qux") {
-		t.Errorf("failed to recognize absent tag")
-	}
+	assert.Equal(t, false, sheet.Tagged("qux"), "failed to recognize absent tag")
 }

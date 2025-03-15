@@ -2,6 +2,8 @@ package sheet
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestHasFrontmatter asserts that markdown is properly parsed when it contains
@@ -17,29 +19,17 @@ To foo the bar: baz`
 
 	// parse the frontmatter
 	fm, text, err := parse(markdown)
-
-	// assert expectations
-	if err != nil {
-		t.Errorf("failed to parse markdown: %v", err)
-	}
+	assert.NoError(t, err, "failed to parse markdown")
 
 	want := "To foo the bar: baz"
-	if text != want {
-		t.Errorf("failed to parse text: want: %s, got: %s", want, text)
-	}
+	assert.Equal(t, want, text, "failed to parse text")
 
 	want = "go"
-	if fm.Syntax != want {
-		t.Errorf("failed to parse syntax: want: %s, got: %s", want, fm.Syntax)
-	}
+	assert.Equal(t, want, fm.Syntax, "failed to parse syntax")
 
 	want = "test"
-	if fm.Tags[0] != want {
-		t.Errorf("failed to parse tags: want: %s, got: %s", want, fm.Tags[0])
-	}
-	if len(fm.Tags) != 1 {
-		t.Errorf("failed to parse tags: want: len 0, got: len %d", len(fm.Tags))
-	}
+	assert.Equal(t, want, fm.Tags[0], "failed to parse tags")
+	assert.Equal(t, 1, len(fm.Tags), "failed to parse tags")
 }
 
 // TestHasFrontmatter asserts that markdown is properly parsed when it does not
@@ -51,23 +41,10 @@ func TestHasNoFrontmatter(t *testing.T) {
 
 	// parse the frontmatter
 	fm, text, err := parse(markdown)
-
-	// assert expectations
-	if err != nil {
-		t.Errorf("failed to parse markdown: %v", err)
-	}
-
-	if text != markdown {
-		t.Errorf("failed to parse text: want: %s, got: %s", markdown, text)
-	}
-
-	if fm.Syntax != "" {
-		t.Errorf("failed to parse syntax: want: '', got: %s", fm.Syntax)
-	}
-
-	if len(fm.Tags) != 0 {
-		t.Errorf("failed to parse tags: want: len 0, got: len %d", len(fm.Tags))
-	}
+	assert.NoError(t, err, "failed to parse markdown")
+	assert.Equal(t, markdown, text, "failed to parse text")
+	assert.Equal(t, "", fm.Syntax, "failex to parse syntax")
+	assert.Equal(t, 0, len(fm.Tags), "failed to parse tags")
 }
 
 // TestHasInvalidFrontmatter asserts that markdown is properly parsed when it
@@ -84,12 +61,6 @@ To foo the bar: baz`
 	_, text, err := parse(markdown)
 
 	// assert that an error was returned
-	if err == nil {
-		t.Error("failed to error on invalid frontmatter")
-	}
-
-	// assert that the "raw" markdown was returned
-	if text != markdown {
-		t.Errorf("failed to parse text: want: %s, got: %s", markdown, text)
-	}
+	assert.Error(t, err, "failed to error on invalid frontmatter")
+	assert.Equal(t, markdown, text, "failed to parse text")
 }

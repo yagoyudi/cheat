@@ -4,6 +4,8 @@ import (
 	"os"
 	"path"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestCopyFlat asserts that Copy correctly copies files at a single level of
@@ -13,21 +15,16 @@ func TestCopyFlat(t *testing.T) {
 	// mock a cheatsheet file
 	text := "this is the cheatsheet text"
 	src, err := os.CreateTemp("", "foo-src")
-	if err != nil {
-		t.Errorf("failed to mock cheatsheet: %v", err)
-	}
+	assert.NoError(t, err, "failed to mock cheatsheet")
 	defer src.Close()
 	defer os.Remove(src.Name())
 
-	if _, err := src.WriteString(text); err != nil {
-		t.Errorf("failed to write to mock cheatsheet: %v", err)
-	}
+	_, err = src.WriteString(text)
+	assert.NoError(t, err, "failed to write to mock cheatsheet")
 
 	// mock a cheatsheet struct
 	sheet, err := New("foo", "community", src.Name(), []string{}, false)
-	if err != nil {
-		t.Errorf("failed to init cheatsheet: %v", err)
-	}
+	assert.NoError(t, err, "failed to init cheatsheet")
 
 	// compute the outfile's path
 	outpath := path.Join(os.TempDir(), sheet.Title)
@@ -35,22 +32,12 @@ func TestCopyFlat(t *testing.T) {
 
 	// attempt to copy the cheatsheet
 	err = sheet.Copy(outpath)
-	if err != nil {
-		t.Errorf("failed to copy cheatsheet: %v", err)
-	}
+	assert.NoError(t, err, "failed to copy cheatsheet")
 
 	// assert that the destination file contains the correct text
 	got, err := os.ReadFile(outpath)
-	if err != nil {
-		t.Errorf("failed to read destination file: %v", err)
-	}
-	if string(got) != text {
-		t.Errorf(
-			"destination file contained wrong text: want: '%s', got: '%s'",
-			text,
-			got,
-		)
-	}
+	assert.NoError(t, err, "failed to read destination file")
+	assert.Equal(t, text, string(got), "destination file contained wrong text")
 }
 
 // TestCopyDeep asserts that Copy correctly copies files at several levels of
@@ -60,15 +47,12 @@ func TestCopyDeep(t *testing.T) {
 	// mock a cheatsheet file
 	text := "this is the cheatsheet text"
 	src, err := os.CreateTemp("", "foo-src")
-	if err != nil {
-		t.Errorf("failed to mock cheatsheet: %v", err)
-	}
+	assert.NoError(t, err, "failed to mock cheatsheet")
 	defer src.Close()
 	defer os.Remove(src.Name())
 
-	if _, err := src.WriteString(text); err != nil {
-		t.Errorf("failed to write to mock cheatsheet: %v", err)
-	}
+	_, err = src.WriteString(text)
+	assert.NoError(t, err, "failed to write to mock cheatsheet")
 
 	// mock a cheatsheet struct
 	sheet, err := New(
@@ -78,9 +62,7 @@ func TestCopyDeep(t *testing.T) {
 		[]string{},
 		false,
 	)
-	if err != nil {
-		t.Errorf("failed to init cheatsheet: %v", err)
-	}
+	assert.NoError(t, err, "failed to init cheatsheet")
 
 	// compute the outfile's path
 	outpath := path.Join(os.TempDir(), sheet.Title)
@@ -88,20 +70,10 @@ func TestCopyDeep(t *testing.T) {
 
 	// attempt to copy the cheatsheet
 	err = sheet.Copy(outpath)
-	if err != nil {
-		t.Errorf("failed to copy cheatsheet: %v", err)
-	}
+	assert.NoError(t, err, "failed to copy cheatsheet")
 
 	// assert that the destination file contains the correct text
 	got, err := os.ReadFile(outpath)
-	if err != nil {
-		t.Errorf("failed to read destination file: %v", err)
-	}
-	if string(got) != text {
-		t.Errorf(
-			"destination file contained wrong text: want: '%s', got: '%s'",
-			text,
-			got,
-		)
-	}
+	assert.NoError(t, err, "failed to read destination file")
+	assert.Equal(t, text, string(got), "destination file contained wrong text")
 }

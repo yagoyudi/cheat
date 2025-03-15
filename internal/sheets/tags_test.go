@@ -1,10 +1,9 @@
 package sheets
 
 import (
-	"reflect"
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/yagoyudi/cheat/internal/sheet"
 )
@@ -16,15 +15,15 @@ func TestTags(t *testing.T) {
 	cheatpaths := []map[string]sheet.Sheet{
 
 		// mock community cheatsheets
-		map[string]sheet.Sheet{
-			"foo": sheet.Sheet{Title: "foo", Tags: []string{"alpha"}},
-			"bar": sheet.Sheet{Title: "bar", Tags: []string{"alpha", "bravo"}},
+		{
+			"foo": {Title: "foo", Tags: []string{"alpha"}},
+			"bar": {Title: "bar", Tags: []string{"alpha", "bravo"}},
 		},
 
 		// mock local cheatsheets
-		map[string]sheet.Sheet{
-			"bar": sheet.Sheet{Title: "bar", Tags: []string{"bravo", "charlie"}},
-			"baz": sheet.Sheet{Title: "baz", Tags: []string{"delta"}},
+		{
+			"bar": {Title: "bar", Tags: []string{"bravo", "charlie"}},
+			"baz": {Title: "baz", Tags: []string{"delta"}},
 		},
 	}
 
@@ -40,12 +39,5 @@ func TestTags(t *testing.T) {
 	}
 
 	// assert that the cheatsheets properly consolidated
-	if !reflect.DeepEqual(tags, want) {
-		t.Errorf(
-			"failed to return tags: want:\n%s, got:\n%s",
-			spew.Sdump(want),
-			spew.Sdump(tags),
-		)
-	}
-
+	assert.Equal(t, want, tags, "failed to return tags")
 }
