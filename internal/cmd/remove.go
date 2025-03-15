@@ -16,9 +16,10 @@ func init() {
 }
 
 var removeCmd = &cobra.Command{
-	Use:   "rm [cheatsheet]",
-	Short: "Removes a cheatsheet",
-	Args:  cobra.ExactArgs(1),
+	Use:     "rm [cheatsheet]",
+	Short:   "Removes a cheatsheet",
+	Args:    cobra.ExactArgs(1),
+	Example: `  cheat rm kubectl -t community`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		tags, err := cmd.Flags().GetString("tag")
 		if err != nil {

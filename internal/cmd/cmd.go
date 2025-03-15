@@ -59,13 +59,15 @@ func init() {
 		}
 	}
 
-	rootCmd.AddCommand(listCmd)
-	rootCmd.AddCommand(viewCmd)
-	rootCmd.AddCommand(editCmd)
-	rootCmd.AddCommand(versionCmd)
-	rootCmd.AddCommand(directoriesCmd)
-	rootCmd.AddCommand(removeCmd)
-	rootCmd.AddCommand(searchCmd)
+	rootCmd.AddCommand(
+		listCmd,
+		viewCmd,
+		editCmd,
+		versionCmd,
+		directoriesCmd,
+		removeCmd,
+		searchCmd,
+	)
 
 	rootCmd.Flags().BoolP("init", "i", false, "write a default config file to stdout")
 }
@@ -128,10 +130,6 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func Execute() error {
-	err := rootCmd.Execute()
-	if err != nil {
-		return fmt.Errorf("cmd: %v", err)
-	}
-	return nil
+func Execute() {
+	rootCmd.Execute()
 }

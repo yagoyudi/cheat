@@ -22,8 +22,10 @@ func init() {
 }
 
 var searchCmd = &cobra.Command{
-	Use:   "search [phrase]",
-	Short: "Searches for strings in cheatsheets",
+	Use:     "search [phrase]",
+	Short:   "Searches for strings in cheatsheets",
+	Args:    cobra.ExactArgs(1),
+	Example: `  cheat search '(?:[0-9]{1,3}\.){3}[0-9]{1,3}' -p personal -t networking -r`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		phrase := args[0]
 

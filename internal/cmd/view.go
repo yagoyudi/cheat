@@ -21,33 +21,35 @@ func init() {
 var viewCmd = &cobra.Command{
 	Use:   "view [cheatsheet]",
 	Short: "Displays a cheatsheet for viewing",
+	Args:  cobra.ExactArgs(1),
+	Example: `  cheat view kubectl
+  cheat view kubectl -t community`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cheatsheet := args[0]
 
 		allFlag, err := cmd.Flags().GetBool("all")
 		if err != nil {
-			return err
+			return fmt.Errorf("cmd: %v", err)
 		}
 		tags, err := cmd.Flags().GetString("tag")
 		if err != nil {
-			return err
+			return fmt.Errorf("cmd: %v", err)
 		}
 
 		var conf config.Config
 		if err := viper.Unmarshal(&conf); err != nil {
-			return err
+			return fmt.Errorf("cmd: %v", err)
 		}
 
 		var cheatpaths []cheatpath.Cheatpath
 		if err := viper.UnmarshalKey("cheatpaths", &cheatpaths); err != nil {
-			return fmt.Errorf("sheets: %v", err)
+			return fmt.Errorf("cmd: %v", err)
 		}
 
 		// load the cheatsheets
 		cheatsheets, err := sheets.Load(cheatpaths)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "failed to list cheatsheets: %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("cmd: %v", err)
 		}
 
 		// filter cheatcheats by tag if --tag was provided
@@ -64,7 +66,8 @@ var viewCmd = &cobra.Command{
 			out := ""
 			for _, cheatpath := range cheatsheets {
 
-				// if the cheatpath contains the specified cheatsheet, display it
+				// if the cheatpath contains the specified cheatsheet, display
+				// it
 				if sheet, ok := cheatpath[cheatsheet]; ok {
 
 					// identify the matching cheatsheet
@@ -96,8 +99,7 @@ var viewCmd = &cobra.Command{
 		// fail early if the requested cheatsheet does not exist
 		sheet, ok := consolidated[cheatsheet]
 		if !ok {
-			fmt.Printf("No cheatsheet found for '%s'.\n", cheatsheet)
-			os.Exit(2)
+			return fmt.Errorf("cmd: No cheatsheet found for '%s'\n", cheatsheet)
 		}
 
 		// apply colorization if requested
