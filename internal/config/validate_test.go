@@ -3,6 +3,7 @@ package config
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/yagoyudi/cheat/internal/cheatpath"
 )
 
@@ -15,7 +16,7 @@ func TestValidateCorrect(t *testing.T) {
 		Editor:    "vim",
 		Formatter: "terminal16m",
 		Cheatpaths: []cheatpath.Cheatpath{
-			cheatpath.Cheatpath{
+			{
 				Name:     "foo",
 				Path:     "/foo",
 				ReadOnly: false,
@@ -24,10 +25,8 @@ func TestValidateCorrect(t *testing.T) {
 		},
 	}
 
-	// assert that no errors are returned
-	if err := conf.Validate(); err != nil {
-		t.Errorf("failed to validate valid config: %v", err)
-	}
+	err := conf.Validate()
+	assert.NoError(t, err, "failed to validate valid config")
 }
 
 // TestInvalidateMissingEditor asserts that configs with unspecified editors
@@ -39,7 +38,7 @@ func TestInvalidateMissingEditor(t *testing.T) {
 		Colorize:  true,
 		Formatter: "terminal16m",
 		Cheatpaths: []cheatpath.Cheatpath{
-			cheatpath.Cheatpath{
+			{
 				Name:     "foo",
 				Path:     "/foo",
 				ReadOnly: false,
@@ -48,10 +47,8 @@ func TestInvalidateMissingEditor(t *testing.T) {
 		},
 	}
 
-	// assert that no errors are returned
-	if err := conf.Validate(); err == nil {
-		t.Errorf("failed to invalidate config with unspecified editor")
-	}
+	err := conf.Validate()
+	assert.Error(t, err, "failed to invalidate config with unspecified editor")
 }
 
 // TestInvalidateMissingCheatpaths asserts that configs without cheatpaths are
@@ -65,10 +62,8 @@ func TestInvalidateMissingCheatpaths(t *testing.T) {
 		Formatter: "terminal16m",
 	}
 
-	// assert that no errors are returned
-	if err := conf.Validate(); err == nil {
-		t.Errorf("failed to invalidate config without cheatpaths")
-	}
+	err := conf.Validate()
+	assert.Error(t, err, "failed to invalidate config without cheatpaths")
 }
 
 // TestMissingInvalidFormatters asserts that configs which contain invalid
@@ -81,10 +76,8 @@ func TestMissingInvalidFormatters(t *testing.T) {
 		Editor:   "vim",
 	}
 
-	// assert that no errors are returned
-	if err := conf.Validate(); err == nil {
-		t.Errorf("failed to invalidate config without formatter")
-	}
+	err := conf.Validate()
+	assert.Error(t, err, "failed to invalidate config without formatter")
 }
 
 // TestInvalidateDuplicateCheatpathNames asserts that configs which contain
@@ -97,13 +90,13 @@ func TestInvalidateDuplicateCheatpathNames(t *testing.T) {
 		Editor:    "vim",
 		Formatter: "terminal16m",
 		Cheatpaths: []cheatpath.Cheatpath{
-			cheatpath.Cheatpath{
+			{
 				Name:     "foo",
 				Path:     "/foo",
 				ReadOnly: false,
 				Tags:     []string{},
 			},
-			cheatpath.Cheatpath{
+			{
 				Name:     "foo",
 				Path:     "/bar",
 				ReadOnly: false,
@@ -112,10 +105,8 @@ func TestInvalidateDuplicateCheatpathNames(t *testing.T) {
 		},
 	}
 
-	// assert that no errors are returned
-	if err := conf.Validate(); err == nil {
-		t.Errorf("failed to invalidate config with cheatpaths with duplicate names")
-	}
+	err := conf.Validate()
+	assert.Error(t, err, "failed to invalidate config with cheatpaths with duplicate names")
 }
 
 // TestInvalidateDuplicateCheatpathPaths asserts that configs which contain
@@ -128,13 +119,13 @@ func TestInvalidateDuplicateCheatpathPaths(t *testing.T) {
 		Editor:    "vim",
 		Formatter: "terminal16m",
 		Cheatpaths: []cheatpath.Cheatpath{
-			cheatpath.Cheatpath{
+			{
 				Name:     "foo",
 				Path:     "/foo",
 				ReadOnly: false,
 				Tags:     []string{},
 			},
-			cheatpath.Cheatpath{
+			{
 				Name:     "bar",
 				Path:     "/foo",
 				ReadOnly: false,
@@ -143,8 +134,6 @@ func TestInvalidateDuplicateCheatpathPaths(t *testing.T) {
 		},
 	}
 
-	// assert that no errors are returned
-	if err := conf.Validate(); err == nil {
-		t.Errorf("failed to invalidate config with cheatpaths with duplicate paths")
-	}
+	err := conf.Validate()
+	assert.Error(t, err, "failed to invalidate config with cheatpaths with duplicate paths")
 }

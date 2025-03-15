@@ -1,16 +1,15 @@
 package sheet
 
 import (
-	"reflect"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/yagoyudi/cheat/internal/mock"
 )
 
 // TestSheetSuccess asserts that sheets initialize properly
 func TestSheetSuccess(t *testing.T) {
 
-	// initialize a sheet
 	sheet, err := New(
 		"foo",
 		"community",
@@ -18,41 +17,17 @@ func TestSheetSuccess(t *testing.T) {
 		[]string{"alpha", "bravo"},
 		false,
 	)
-	if err != nil {
-		t.Errorf("failed to load sheet: %v", err)
-	}
-
-	// assert that the sheet loaded correctly
-	if sheet.Title != "foo" {
-		t.Errorf("failed to init title: want: foo, got: %s", sheet.Title)
-	}
-
-	if sheet.Path != mock.Path("sheet/foo") {
-		t.Errorf(
-			"failed to init path: want: %s, got: %s",
-			mock.Path("sheet/foo"),
-			sheet.Path,
-		)
-	}
-
+	assert.NoError(t, err, "failed to load sheet")
+	assert.Equal(t, "foo", sheet.Title, "failed to init title")
+	assert.Equal(t, mock.Path("sheet/foo"), sheet.Path, "failed to init path")
 	wantText := "# To foo the bar:\n  foo bar\n"
-	if sheet.Text != wantText {
-		t.Errorf("failed to init text: want: %s, got: %s", wantText, sheet.Text)
-	}
+	assert.Equal(t, wantText, sheet.Text, "failed to init text")
 
-	// NB: tags should sort alphabetically
+	// Tags should sort alphabetically
 	wantTags := []string{"alpha", "bar", "baz", "bravo", "foo"}
-	if !reflect.DeepEqual(sheet.Tags, wantTags) {
-		t.Errorf("failed to init tags: want: %v, got: %v", wantTags, sheet.Tags)
-	}
-
-	if sheet.Syntax != "sh" {
-		t.Errorf("failed to init syntax: want: sh, got: %s", sheet.Syntax)
-	}
-
-	if sheet.ReadOnly != false {
-		t.Errorf("failed to init readonly")
-	}
+	assert.Equal(t, wantTags, sheet.Tags, "failed to init tags")
+	assert.Equal(t, "sh", sheet.Syntax, "failed to init syntax")
+	assert.Equal(t, false, sheet.ReadOnly, "failed to init readonly")
 }
 
 // TestSheetFailure asserts that an error is returned if the sheet cannot be
@@ -67,9 +42,7 @@ func TestSheetFailure(t *testing.T) {
 		[]string{"alpha", "bravo"},
 		false,
 	)
-	if err == nil {
-		t.Errorf("failed to return an error on unreadable sheet")
-	}
+	assert.Error(t, err, "failed to return an error on unreadable sheet")
 }
 
 // TestSheetFrontMatterFailure asserts that an error is returned if the sheet's
@@ -84,7 +57,5 @@ func TestSheetFrontMatterFailure(t *testing.T) {
 		[]string{"alpha", "bravo"},
 		false,
 	)
-	if err == nil {
-		t.Errorf("failed to return an error on malformed front-matter")
-	}
+	assert.Error(t, err, "failed to return an error on malformed front-matter")
 }

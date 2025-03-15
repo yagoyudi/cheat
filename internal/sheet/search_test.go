@@ -1,9 +1,10 @@
 package sheet
 
 import (
-	"reflect"
 	"regexp"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestSearchNoMatch ensures that the expected output is returned when no
@@ -17,17 +18,11 @@ func TestSearchNoMatch(t *testing.T) {
 
 	// compile the search regex
 	reg, err := regexp.Compile("(?i)foo")
-	if err != nil {
-		t.Errorf("failed to compile regex: %v", err)
-	}
+	assert.NoError(t, err, "failed to compile regex")
 
 	// search the sheet
 	matches := sheet.Search(reg)
-
-	// assert that no matches were found
-	if matches != "" {
-		t.Errorf("failure: expected no matches: got: %s", matches)
-	}
+	assert.Equal(t, "", matches, "failure: expected no matches")
 }
 
 // TestSearchSingleMatch asserts that the expected output is returned
@@ -41,24 +36,12 @@ func TestSearchSingleMatch(t *testing.T) {
 
 	// compile the search regex
 	reg, err := regexp.Compile("(?i)fox")
-	if err != nil {
-		t.Errorf("failed to compile regex: %v", err)
-	}
+	assert.NoError(t, err, "failed to compile regex")
 
 	// search the sheet
 	matches := sheet.Search(reg)
-
-	// specify the expected results
 	want := "The quick brown fox\njumped over"
-
-	// assert that the correct matches were returned
-	if matches != want {
-		t.Errorf(
-			"failed to return expected matches: want:\n%s, got:\n%s",
-			want,
-			matches,
-		)
-	}
+	assert.Equal(t, want, matches, "failed to return expected matches")
 }
 
 // TestSearchMultiMatch asserts that the expected output is returned
@@ -72,22 +55,12 @@ func TestSearchMultiMatch(t *testing.T) {
 
 	// compile the search regex
 	reg, err := regexp.Compile("(?i)the")
-	if err != nil {
-		t.Errorf("failed to compile regex: %v", err)
-	}
+	assert.NoError(t, err, "failed to compile regex")
 
 	// search the sheet
 	matches := sheet.Search(reg)
 
 	// specify the expected results
 	want := "The quick brown fox\n\nthe lazy dog."
-
-	// assert that the correct matches were returned
-	if !reflect.DeepEqual(matches, want) {
-		t.Errorf(
-			"failed to return expected matches: want:\n%s, got:\n%s",
-			want,
-			matches,
-		)
-	}
+	assert.Equal(t, want, matches, "failed to return expected matches")
 }

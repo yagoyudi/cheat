@@ -3,6 +3,7 @@ package display
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/yagoyudi/cheat/internal/config"
 )
 
@@ -13,15 +14,11 @@ func TestFaint(t *testing.T) {
 	conf := config.Config{Colorize: true}
 	want := "\033[2mfoo\033[0m"
 	got := Faint("foo", conf)
-	if want != got {
-		t.Errorf("failed to faint: want: %s, got: %s", want, got)
-	}
+	assert.Equal(t, want, got, "failed to faint")
 
 	// case: do not apply colorization
 	conf.Colorize = false
 	want = "foo"
 	got = Faint("foo", conf)
-	if want != got {
-		t.Errorf("failed to faint: want: %s, got: %s", want, got)
-	}
+	assert.Equal(t, want, got, "failed to faint")
 }

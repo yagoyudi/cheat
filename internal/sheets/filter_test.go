@@ -1,11 +1,9 @@
 package sheets
 
 import (
-	"reflect"
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
-
+	"github.com/stretchr/testify/assert"
 	"github.com/yagoyudi/cheat/internal/sheet"
 )
 
@@ -16,14 +14,14 @@ func TestFilterSingleTag(t *testing.T) {
 	// mock cheatsheets available on multiple cheatpaths
 	cheatpaths := []map[string]sheet.Sheet{
 
-		map[string]sheet.Sheet{
-			"foo": sheet.Sheet{Title: "foo", Tags: []string{"alpha", "bravo"}},
-			"bar": sheet.Sheet{Title: "bar", Tags: []string{"bravo", "charlie"}},
+		{
+			"foo": {Title: "foo", Tags: []string{"alpha", "bravo"}},
+			"bar": {Title: "bar", Tags: []string{"bravo", "charlie"}},
 		},
 
-		map[string]sheet.Sheet{
-			"baz": sheet.Sheet{Title: "baz", Tags: []string{"alpha", "bravo"}},
-			"bat": sheet.Sheet{Title: "bat", Tags: []string{"bravo", "charlie"}},
+		{
+			"baz": {Title: "baz", Tags: []string{"alpha", "bravo"}},
+			"bat": {Title: "bat", Tags: []string{"bravo", "charlie"}},
 		},
 	}
 
@@ -32,24 +30,18 @@ func TestFilterSingleTag(t *testing.T) {
 
 	// assert that the expect results were returned
 	want := []map[string]sheet.Sheet{
-		map[string]sheet.Sheet{
-			"foo": sheet.Sheet{Title: "foo", Tags: []string{"alpha", "bravo"}},
-			"bar": sheet.Sheet{Title: "bar", Tags: []string{"bravo", "charlie"}},
+		{
+			"foo": {Title: "foo", Tags: []string{"alpha", "bravo"}},
+			"bar": {Title: "bar", Tags: []string{"bravo", "charlie"}},
 		},
 
-		map[string]sheet.Sheet{
-			"baz": sheet.Sheet{Title: "baz", Tags: []string{"alpha", "bravo"}},
-			"bat": sheet.Sheet{Title: "bat", Tags: []string{"bravo", "charlie"}},
+		{
+			"baz": {Title: "baz", Tags: []string{"alpha", "bravo"}},
+			"bat": {Title: "bat", Tags: []string{"bravo", "charlie"}},
 		},
 	}
 
-	if !reflect.DeepEqual(filtered, want) {
-		t.Errorf(
-			"failed to return expected results: want:\n%s, got:\n%s",
-			spew.Sdump(want),
-			spew.Sdump(filtered),
-		)
-	}
+	assert.Equal(t, want, filtered, "failed to return expected results")
 }
 
 // TestFilterSingleTag asserts that Filter properly filters results when passed
@@ -59,14 +51,14 @@ func TestFilterMultiTag(t *testing.T) {
 	// mock cheatsheets available on multiple cheatpaths
 	cheatpaths := []map[string]sheet.Sheet{
 
-		map[string]sheet.Sheet{
-			"foo": sheet.Sheet{Title: "foo", Tags: []string{"alpha", "bravo"}},
-			"bar": sheet.Sheet{Title: "bar", Tags: []string{"bravo", "charlie"}},
+		{
+			"foo": {Title: "foo", Tags: []string{"alpha", "bravo"}},
+			"bar": {Title: "bar", Tags: []string{"bravo", "charlie"}},
 		},
 
-		map[string]sheet.Sheet{
-			"baz": sheet.Sheet{Title: "baz", Tags: []string{"alpha", "bravo"}},
-			"bat": sheet.Sheet{Title: "bat", Tags: []string{"bravo", "charlie"}},
+		{
+			"baz": {Title: "baz", Tags: []string{"alpha", "bravo"}},
+			"bat": {Title: "bat", Tags: []string{"bravo", "charlie"}},
 		},
 	}
 
@@ -75,20 +67,13 @@ func TestFilterMultiTag(t *testing.T) {
 
 	// assert that the expect results were returned
 	want := []map[string]sheet.Sheet{
-		map[string]sheet.Sheet{
-			"foo": sheet.Sheet{Title: "foo", Tags: []string{"alpha", "bravo"}},
+		{
+			"foo": {Title: "foo", Tags: []string{"alpha", "bravo"}},
 		},
-
-		map[string]sheet.Sheet{
-			"baz": sheet.Sheet{Title: "baz", Tags: []string{"alpha", "bravo"}},
+		{
+			"baz": {Title: "baz", Tags: []string{"alpha", "bravo"}},
 		},
 	}
 
-	if !reflect.DeepEqual(filtered, want) {
-		t.Errorf(
-			"failed to return expected results: want:\n%s, got:\n%s",
-			spew.Sdump(want),
-			spew.Sdump(filtered),
-		)
-	}
+	assert.Equal(t, want, filtered, "failed to return expected result")
 }

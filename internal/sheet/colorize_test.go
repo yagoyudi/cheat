@@ -3,6 +3,7 @@ package sheet
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/yagoyudi/cheat/internal/config"
 )
 
@@ -28,7 +29,5 @@ func TestColorize(t *testing.T) {
 	want += " [0m[38;2;42;161;152m'foo'[0m"
 
 	// assert
-	if s.Text != want {
-		t.Errorf("failed to colorize sheet: want: %s, got: %s", want, s.Text)
-	}
+	assert.Equal(t, want, s.Text, "failed to colorize sheet")
 }

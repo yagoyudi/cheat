@@ -1,11 +1,9 @@
 package sheets
 
 import (
-	"reflect"
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
-
+	"github.com/stretchr/testify/assert"
 	"github.com/yagoyudi/cheat/internal/sheet"
 )
 
@@ -16,15 +14,15 @@ func TestConsolidate(t *testing.T) {
 	cheatpaths := []map[string]sheet.Sheet{
 
 		// mock community cheatsheets
-		map[string]sheet.Sheet{
-			"foo": sheet.Sheet{Title: "foo", Path: "community/foo"},
-			"bar": sheet.Sheet{Title: "bar", Path: "community/bar"},
+		{
+			"foo": {Title: "foo", Path: "community/foo"},
+			"bar": {Title: "bar", Path: "community/bar"},
 		},
 
 		// mock local cheatsheets
-		map[string]sheet.Sheet{
-			"bar": sheet.Sheet{Title: "bar", Path: "local/bar"},
-			"baz": sheet.Sheet{Title: "baz", Path: "local/baz"},
+		{
+			"bar": {Title: "bar", Path: "local/bar"},
+			"baz": {Title: "baz", Path: "local/baz"},
 		},
 	}
 
@@ -33,18 +31,9 @@ func TestConsolidate(t *testing.T) {
 
 	// specify the expected output
 	want := map[string]sheet.Sheet{
-		"foo": sheet.Sheet{Title: "foo", Path: "community/foo"},
-		"bar": sheet.Sheet{Title: "bar", Path: "local/bar"},
-		"baz": sheet.Sheet{Title: "baz", Path: "local/baz"},
+		"foo": {Title: "foo", Path: "community/foo"},
+		"bar": {Title: "bar", Path: "local/bar"},
+		"baz": {Title: "baz", Path: "local/baz"},
 	}
-
-	// assert that the cheatsheets properly consolidated
-	if !reflect.DeepEqual(consolidated, want) {
-		t.Errorf(
-			"failed to consolidate cheatpaths: want:\n%s, got:\n%s",
-			spew.Sdump(want),
-			spew.Sdump(consolidated),
-		)
-	}
-
+	assert.Equal(t, want, consolidated, "failed to consolidate cheatpaths")
 }

@@ -3,6 +3,7 @@ package sheets
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/yagoyudi/cheat/internal/sheet"
 )
 
@@ -11,9 +12,9 @@ func TestSort(t *testing.T) {
 
 	// mock a map of cheatsheets
 	sheets := map[string]sheet.Sheet{
-		"foo": sheet.Sheet{Title: "foo"},
-		"bar": sheet.Sheet{Title: "bar"},
-		"baz": sheet.Sheet{Title: "baz"},
+		"foo": {Title: "foo"},
+		"bar": {Title: "bar"},
+		"baz": {Title: "baz"},
 	}
 
 	// sort the sheets
@@ -21,14 +22,7 @@ func TestSort(t *testing.T) {
 
 	// assert that the sheets sorted properly
 	want := []string{"bar", "baz", "foo"}
-
 	for i, got := range sorted {
-		if got.Title != want[i] {
-			t.Errorf(
-				"sort returned incorrect value: want: %s, got: %s",
-				want[i],
-				got.Title,
-			)
-		}
+		assert.Equal(t, want[i], got.Title, "sort returned incorrect value")
 	}
 }
