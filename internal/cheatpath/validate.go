@@ -8,10 +8,10 @@ import (
 func (c *Cheatpath) Validate() error {
 
 	if c.Name == "" {
-		return fmt.Errorf("invalid cheatpath: name must be specified")
+		return fmt.Errorf("cheatpath: invalid cheatpath: name must be specified")
 	}
 	if c.Path == "" {
-		return fmt.Errorf("invalid cheatpath: path must be specified")
+		return fmt.Errorf("cheatpath: invalid cheatpath: path must be specified")
 	}
 
 	return nil

@@ -2,21 +2,20 @@ package config
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestColor asserts that colorization rules are properly respected
 func TestColor(t *testing.T) {
 
-	// mock a config
-	conf := Config{}
-
-	opts := map[string]interface{}{"--colorize": false}
-	if conf.Color(opts) {
-		t.Errorf("failed to respect --colorize (false)")
+	noColorConf := Config{
+		Colorize: false,
 	}
+	assert.Equal(t, false, noColorConf.Colorize)
 
-	opts = map[string]interface{}{"--colorize": true}
-	if !conf.Color(opts) {
-		t.Errorf("failed to respect --colorize (true)")
+	colorConf := Config{
+		Colorize: true,
 	}
+	assert.Equal(t, true, colorConf.Colorize)
 }

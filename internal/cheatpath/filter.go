@@ -15,5 +15,5 @@ func Filter(paths []Cheatpath, name string) ([]Cheatpath, error) {
 	}
 
 	// otherwise, return an error
-	return []Cheatpath{}, fmt.Errorf("cheatpath does not exist: %s", name)
+	return []Cheatpath{}, fmt.Errorf("cheatpath: cheatpath does not exist: %s", name)
 }

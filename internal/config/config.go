@@ -7,19 +7,19 @@ import (
 	"path/filepath"
 	"strings"
 
-	cp "github.com/yagoyudi/cheat/internal/cheatpath"
+	"github.com/yagoyudi/cheat/internal/cheatpath"
 
 	"gopkg.in/yaml.v3"
 )
 
 // Config encapsulates configuration parameters
 type Config struct {
-	Colorize   bool           `yaml:"colorize"`
-	Editor     string         `yaml:"editor"`
-	Cheatpaths []cp.Cheatpath `yaml:"cheatpaths"`
-	Style      string         `yaml:"style"`
-	Formatter  string         `yaml:"formatter"`
-	Pager      string         `yaml:"pager"`
+	Colorize   bool                  `yaml:"colorize"`
+	Editor     string                `yaml:"editor"`
+	Cheatpaths []cheatpath.Cheatpath `yaml:"cheatpaths"`
+	Style      string                `yaml:"style"`
+	Formatter  string                `yaml:"formatter"`
+	Pager      string                `yaml:"pager"`
 	Path       string
 }
 
@@ -29,7 +29,7 @@ func New(_ map[string]interface{}, confPath string, resolve bool) (Config, error
 	// read the config file
 	buf, err := os.ReadFile(confPath)
 	if err != nil {
-		return Config{}, fmt.Errorf("could not read config file: %v", err)
+		return Config{}, fmt.Errorf("config: could not read config file: %v", err)
 	}
 
 	// initialize a config object
@@ -41,18 +41,18 @@ func New(_ map[string]interface{}, confPath string, resolve bool) (Config, error
 	// unmarshal the yaml
 	err = yaml.Unmarshal(buf, &conf)
 	if err != nil {
-		return Config{}, fmt.Errorf("could not unmarshal yaml: %v", err)
+		return Config{}, fmt.Errorf("config: could not unmarshal yaml: %v", err)
 	}
 
 	// if a .cheat directory exists locally, append it to the cheatpaths
 	cwd, err := os.Getwd()
 	if err != nil {
-		return Config{}, fmt.Errorf("failed to get cwd: %v", err)
+		return Config{}, fmt.Errorf("config: failed to get cwd: %v", err)
 	}
 
 	local := filepath.Join(cwd, ".cheat")
 	if _, err := os.Stat(local); err == nil {
-		path := cp.Cheatpath{
+		path := cheatpath.Cheatpath{
 			Name:     "cwd",
 			Path:     local,
 			ReadOnly: false,
@@ -68,7 +68,7 @@ func New(_ map[string]interface{}, confPath string, resolve bool) (Config, error
 		// expand ~ in config paths
 		expanded, err := expandPath(cheatpath.Path)
 		if err != nil {
-			return Config{}, fmt.Errorf("failed to expand ~: %v", err)
+			return Config{}, fmt.Errorf("config: failed to expand ~: %v", err)
 		}
 
 		// follow symlinks
@@ -83,7 +83,7 @@ func New(_ map[string]interface{}, confPath string, resolve bool) (Config, error
 			evaled, err := filepath.EvalSymlinks(expanded)
 			if err != nil {
 				return Config{}, fmt.Errorf(
-					"failed to resolve symlink: %s: %v",
+					"config: failed to resolve symlink: %s: %v",
 					expanded,
 					err,
 				)
@@ -98,7 +98,8 @@ func New(_ map[string]interface{}, confPath string, resolve bool) (Config, error
 	// if an editor was not provided in the configs, attempt to choose one
 	// that's appropriate for the environment
 	if conf.Editor == "" {
-		if conf.Editor, err = Editor(); err != nil {
+		conf.Editor, err = Editor()
+		if err != nil {
 			return Config{}, err
 		}
 	}
