@@ -2,6 +2,8 @@ package cheatpath
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestValidateValid asserts that valid cheatpaths validate successfully
@@ -15,10 +17,8 @@ func TestValidateValid(t *testing.T) {
 		Tags:     []string{},
 	}
 
-	// assert that no errors are returned
-	if err := cheatpath.Validate(); err != nil {
-		t.Errorf("failed to validate valid cheatpath: %v", err)
-	}
+	err := cheatpath.Validate()
+	assert.NoError(t, err)
 }
 
 // TestValidateMissingName asserts that paths that are missing a name fail to
@@ -32,10 +32,8 @@ func TestValidateMissingName(t *testing.T) {
 		Tags:     []string{},
 	}
 
-	// assert that no errors are returned
-	if err := cheatpath.Validate(); err == nil {
-		t.Errorf("failed to invalidate cheatpath without name")
-	}
+	err := cheatpath.Validate()
+	assert.Error(t, err)
 }
 
 // TestValidateMissingPath asserts that paths that are missing a path fail to
@@ -49,8 +47,6 @@ func TestValidateMissingPath(t *testing.T) {
 		Tags:     []string{},
 	}
 
-	// assert that no errors are returned
-	if err := cheatpath.Validate(); err == nil {
-		t.Errorf("failed to invalidate cheatpath without path")
-	}
+	err := cheatpath.Validate()
+	assert.Error(t, err)
 }

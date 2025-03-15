@@ -37,5 +37,5 @@ func Editor() (string, error) {
 	}
 
 	// return an error if no path is found
-	return "", fmt.Errorf("no editor set")
+	return "", fmt.Errorf("config: no editor set")
 }

@@ -3,10 +3,9 @@ package config
 import (
 	"os"
 	"path/filepath"
-	"reflect"
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/yagoyudi/cheat/internal/cheatpath"
 	"github.com/yagoyudi/cheat/internal/mock"
@@ -17,23 +16,13 @@ func TestConfigSuccessful(t *testing.T) {
 
 	// initialize a config
 	conf, err := New(map[string]interface{}{}, mock.Path("conf/conf.yml"), false)
-	if err != nil {
-		t.Errorf("failed to parse config file: %v", err)
-	}
-
-	// assert that the expected values were returned
-	if conf.Editor != "vim" {
-		t.Errorf("failed to set editor: want: vim, got: %s", conf.Editor)
-	}
-	if !conf.Colorize {
-		t.Errorf("failed to set colorize: want: true, got: %t", conf.Colorize)
-	}
+	assert.NoError(t, err, "failed to parse config file")
+	assert.Equal(t, "vim", conf.Editor, "failed to set editor")
+	assert.Equal(t, true, conf.Colorize, "failed to set colorize")
 
 	// get the user's home directory (with ~ expanded)
 	home, err := os.UserHomeDir()
-	if err != nil {
-		t.Errorf("failed to get homedir: %v", err)
-	}
+	assert.NoError(t, err, "failed to get homedir")
 
 	// assert that the cheatpaths are correct
 	want := []cheatpath.Cheatpath{
@@ -53,14 +42,7 @@ func TestConfigSuccessful(t *testing.T) {
 			Tags:     []string{"personal"},
 		},
 	}
-
-	if !reflect.DeepEqual(conf.Cheatpaths, want) {
-		t.Errorf(
-			"failed to return expected results: want:\n%s, got:\n%s",
-			spew.Sdump(want),
-			spew.Sdump(conf.Cheatpaths),
-		)
-	}
+	assert.Equal(t, want, conf.Cheatpaths, "failed to return expected results")
 }
 
 // TestConfigFailure asserts that an error is returned if the config file
@@ -69,9 +51,7 @@ func TestConfigFailure(t *testing.T) {
 
 	// attempt to read a non-existent config file
 	_, err := New(map[string]interface{}{}, "/does-not-exit", false)
-	if err == nil {
-		t.Errorf("failed to error on unreadable config")
-	}
+	assert.Error(t, err, "failed to error on unreadable config")
 }
 
 // TestEmptyEditor asserts that envvars are respected if an editor is not
@@ -84,27 +64,17 @@ func TestEmptyEditor(t *testing.T) {
 
 	// initialize a config
 	conf, err := New(map[string]interface{}{}, mock.Path("conf/empty.yml"), false)
-	if err != nil {
-		t.Errorf("failed to initialize test: %v", err)
-	}
+	assert.NoError(t, err, "failed to initialize test")
 
 	// set editor, and assert that it is respected
 	os.Setenv("EDITOR", "foo")
 	conf, err = New(map[string]interface{}{}, mock.Path("conf/empty.yml"), false)
-	if err != nil {
-		t.Errorf("failed to init configs: %v", err)
-	}
-	if conf.Editor != "foo" {
-		t.Errorf("failed to respect editor: want: foo, got: %s", conf.Editor)
-	}
+	assert.NoError(t, err, "failed to init configs")
+	assert.Equal(t, "foo", conf.Editor, "failed to respect editor")
 
 	// set visual, and assert that it overrides editor
 	os.Setenv("VISUAL", "bar")
 	conf, err = New(map[string]interface{}{}, mock.Path("conf/empty.yml"), false)
-	if err != nil {
-		t.Errorf("failed to init configs: %v", err)
-	}
-	if conf.Editor != "bar" {
-		t.Errorf("failed to respect editor: want: bar, got: %s", conf.Editor)
-	}
+	assert.NoError(t, err, "failed to init configs")
+	assert.Equal(t, "bar", conf.Editor, "failed to respect editor")
 }
