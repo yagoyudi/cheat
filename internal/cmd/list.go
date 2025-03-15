@@ -26,6 +26,9 @@ func init() {
 var listCmd = &cobra.Command{
 	Use:   "ls [cheatsheet]",
 	Short: "Lists all available cheatsheets",
+	Example: `  cheat ls
+  cheat ls -p personal
+  cheat ls -t networking`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var conf config.Config
 		if err := viper.Unmarshal(&conf); err != nil {

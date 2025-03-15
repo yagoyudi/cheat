@@ -20,6 +20,8 @@ var editCmd = &cobra.Command{
 	Use:   "edit [cheatsheet]",
 	Short: "Opens a cheatsheet for editing (or creates it if it doesn't exist)",
 	Args:  cobra.ExactArgs(1),
+	Example: `  cheat edit tar     # opens the "tar" cheatsheet for editing, or creates it if it does not exist
+  cheat edit foo/bar # nested cheatsheets are accessed like this`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var cheatpaths []cheatpath.Cheatpath
 		if err := viper.UnmarshalKey("cheatpaths", &cheatpaths); err != nil {

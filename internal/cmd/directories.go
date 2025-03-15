@@ -12,8 +12,9 @@ import (
 )
 
 var directoriesCmd = &cobra.Command{
-	Use:   "dirs",
-	Short: "Lists the configured cheatpaths",
+	Use:     "dirs",
+	Short:   "Lists the configured cheatpaths",
+	Example: "  cheat dirs",
 	RunE: func(cmd *cobra.Command, _ []string) error {
 		var conf config.Config
 		if err := viper.Unmarshal(&conf); err != nil {
