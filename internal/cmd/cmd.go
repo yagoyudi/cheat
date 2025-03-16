@@ -4,12 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
-	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/yagoyudi/cheat/internal/config"
 	"github.com/yagoyudi/cheat/internal/installer"
 )
 
@@ -67,67 +64,14 @@ func init() {
 		directoriesCmd,
 		removeCmd,
 		searchCmd,
+		initCmd,
 	)
-
-	rootCmd.Flags().BoolP("init", "i", false, "write a default config file to stdout")
 }
 
 var rootCmd = &cobra.Command{
 	Use:   "cheat",
 	Short: "Cheat allows you to create and view interactive cheatsheets on the command-line.",
-	Long:  "It was designed to help remind *nix system administrators of options for commands that they use frequently, but not frequently enough to remember.",
-	RunE: func(cmd *cobra.Command, _ []string) error {
-		initFlag, err := cmd.Flags().GetBool("init")
-		if err != nil {
-			return err
-		}
-
-		if initFlag {
-			home, err := os.UserHomeDir()
-			if err != nil {
-				return err
-			}
-
-			// read the envvars into a map of strings
-			envvars := map[string]string{}
-			for _, e := range os.Environ() {
-				pair := strings.SplitN(e, "=", 2)
-				envvars[pair[0]] = pair[1]
-			}
-
-			// load the config template
-			configs := configTemplate
-
-			// identify the os-specifc paths at which configs may be located
-			confpaths, err := config.Paths(runtime.GOOS, home, envvars)
-			if err != nil {
-				return err
-			}
-
-			// determine the appropriate paths for config data and (optional) community
-			// cheatsheets based on the user's platform
-			confpath := confpaths[0]
-			confdir := filepath.Dir(confpath)
-
-			// create paths for community and personal cheatsheets
-			community := filepath.Join(confdir, "cheatsheets", "community")
-			personal := filepath.Join(confdir, "cheatsheets", "personal")
-
-			// template the above paths into the default configs
-			configs = strings.Replace(configs, "COMMUNITY_PATH", community, -1)
-			configs = strings.Replace(configs, "PERSONAL_PATH", personal, -1)
-
-			// output the templated configs
-			fmt.Println(configs)
-
-			return nil
-		}
-
-		fmt.Println(cmd.Short + "\n" + cmd.Long + "\n")
-		cmd.Usage()
-
-		return nil
-	},
+	Long:  "Cheat was designed to help remind *nix system administrators of options for commands that they use frequently, but not frequently enough to remember.",
 }
 
 func Execute() {
