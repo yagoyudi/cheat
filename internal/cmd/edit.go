@@ -121,9 +121,6 @@ var editCmd = &cobra.Command{
 		c.Stdout = os.Stdout
 		c.Stdin = os.Stdin
 		c.Stderr = os.Stderr
-		if err := c.Run(); err != nil {
-			return err
-		}
-		return nil
+		return c.Run()
 	},
 }
