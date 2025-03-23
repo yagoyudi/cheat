@@ -65,6 +65,7 @@ func init() {
 		removeCmd,
 		searchCmd,
 		initCmd,
+		tagsCmd,
 	)
 }
 
