@@ -17,9 +17,14 @@ func init() {
 		fmt.Fprintf(os.Stderr, "cheat: cmd: %v", err)
 		os.Exit(1)
 	}
-	configPath := filepath.Join(home, ".config", "cheat", "config.yaml")
+	configPath := filepath.Join(home, ".config", "cheat")
 	viper.AddConfigPath(configPath)
 	viper.AutomaticEnv()
+
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Fprintf(os.Stderr, "cheat: cmd: %v", err)
+		os.Exit(1)
+	}
 
 	rootCmd.AddCommand(
 		listCmd,
