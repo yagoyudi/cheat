@@ -9,16 +9,29 @@ import (
 
 // TestFaint asserts that Faint applies faint formatting
 func TestFaint(t *testing.T) {
-
-	// case: apply colorization
-	conf := config.Config{Colorize: true}
-	want := "\033[2mfoo\033[0m"
-	got := Faint("foo", conf)
-	assert.Equal(t, want, got, "failed to faint")
-
-	// case: do not apply colorization
-	conf.Colorize = false
-	want = "foo"
-	got = Faint("foo", conf)
-	assert.Equal(t, want, got, "failed to faint")
+	tests := []struct {
+		name     string
+		input    string
+		config   config.Config
+		expected string
+	}{
+		{
+			name:     "apply colorization",
+			input:    "foo",
+			config:   config.Config{Colorize: true},
+			expected: "\033[2mfoo\033[0m",
+		},
+		{
+			name:     "do not apply colorization",
+			input:    "foo",
+			config:   config.Config{Colorize: false},
+			expected: "foo",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Faint(tt.input, tt.config)
+			assert.Equal(t, got, tt.expected)
+		})
+	}
 }

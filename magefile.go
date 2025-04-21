@@ -3,14 +3,22 @@
 package main
 
 import (
-	"github.com/carolynvs/magex/pkg"
+	"fmt"
+	"os"
+
 	"github.com/magefile/mage/sh"
 )
 
 var Default = Build
 
 func Build() error {
-	return sh.RunV("go", "build", "-o", "bin/cheat", "./cmd/cheat")
+	err := sh.RunV("go", "build", "-o", "bin/cheat", "./cmd/cheat")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(1)
+	}
+	fmt.Println("Check the ./bin folder!")
+	return nil
 }
 
 func Test() error {
@@ -19,8 +27,4 @@ func Test() error {
 
 func Clean() error {
 	return sh.RunV("rm", "-rf", "bin")
-}
-
-func EnsureMage() error {
-	return pkg.EnsureMage("")
 }

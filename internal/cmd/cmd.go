@@ -17,7 +17,7 @@ func init() {
 		fmt.Fprintf(os.Stderr, "cheat: cmd: %v", err)
 		os.Exit(1)
 	}
-	configPath := filepath.Join(home, ".config", "cheat")
+	configPath := filepath.Join(home, ".config", "cheat", "config.yaml")
 	viper.AddConfigPath(configPath)
 	viper.AutomaticEnv()
 
