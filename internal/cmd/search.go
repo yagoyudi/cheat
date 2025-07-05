@@ -84,7 +84,7 @@ var searchCmd = &cobra.Command{
 					note.Colorize(conf)
 				}
 
-				// Display the cheatsheet body:
+				// Display the note body:
 				out += fmt.Sprintf("%s %s\n%s\n",
 					// Append the note title:
 					note.Name,

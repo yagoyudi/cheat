@@ -38,12 +38,12 @@ var removeCmd = &cobra.Command{
 		consolidatedNotes := notes.Consolidate(loadedNotes)
 		note, ok := consolidatedNotes[noteName]
 		if !ok {
-			fmt.Printf("No cheatsheet found for '%s'.\n", noteName)
+			fmt.Printf("No note found for '%s'.\n", noteName)
 			os.Exit(0)
 		}
 
 		if note.ReadOnly {
-			fmt.Printf("Cheatsheet '%s' is read-only.\n", noteName)
+			fmt.Printf("Note '%s' is read-only.\n", noteName)
 			os.Exit(0)
 		}
 

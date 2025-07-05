@@ -11,10 +11,10 @@ import (
 	"github.com/yagoyudi/note/internal/display"
 )
 
-var notebooksCmd = &cobra.Command{
+var booksCms = &cobra.Command{
 	Use:     "books",
 	Aliases: []string{"b"},
-	Short:   "Lists the configured notebooks",
+	Short:   "Lists configured notebooks",
 	Example: "  note books",
 	Run: func(cmd *cobra.Command, _ []string) {
 		var conf config.Config

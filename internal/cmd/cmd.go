@@ -22,7 +22,7 @@ func init() {
 		listCmd,
 		viewCmd,
 		editCmd,
-		notebooksCmd,
+		booksCms,
 		removeCmd,
 		searchCmd,
 		initCmd,

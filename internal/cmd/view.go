@@ -13,17 +13,17 @@ import (
 )
 
 func init() {
-	viewCmd.Flags().BoolP("all", "A", false, "display cheatsheets from all cheatpaths")
-	viewCmd.Flags().StringP("tag", "t", "", "filter cheatsheets by tag")
+	viewCmd.Flags().BoolP("all", "A", false, "display notes from all notebooks")
+	viewCmd.Flags().StringP("tag", "t", "", "filter notes by tag")
 }
 
 var viewCmd = &cobra.Command{
-	Use:     "view [cheatsheet]",
+	Use:     "view [note]",
 	Aliases: []string{"v"},
-	Short:   "Displays a cheatsheet for viewing",
+	Short:   "Displays a note for viewing",
 	Args:    cobra.ExactArgs(1),
-	Example: `  cheat view kubectl
-  cheat view kubectl -t community`,
+	Example: `  note view kubectl
+  note view kubectl -t community`,
 	Run: func(cmd *cobra.Command, args []string) {
 		noteName := args[0]
 
@@ -68,10 +68,9 @@ var viewCmd = &cobra.Command{
 		// local notes):
 		consolidatedNotes := notes.Consolidate(loadedNotes)
 
-		// Fail early if the requested note does not exist:
 		note, ok := consolidatedNotes[noteName]
 		if !ok {
-			fmt.Printf("Error: no cheatsheet found for '%s'\n", noteName)
+			fmt.Printf("No note found for '%s'\n", noteName)
 			os.Exit(0)
 		}
 		if conf.Color() {

@@ -14,7 +14,7 @@ var tagsCmd = &cobra.Command{
 	Use:     `tags`,
 	Aliases: []string{"t"},
 	Short:   `Lists all tags in use`,
-	Example: `  cheat tags`,
+	Example: `  note tags`,
 	Run: func(_ *cobra.Command, _ []string) {
 		var conf config.Config
 		cobra.CheckErr(viper.Unmarshal(&conf))
