@@ -1,4 +1,4 @@
-module github.com/yagoyudi/cheat
+module github.com/yagoyudi/note
 
 go 1.23.3
 
@@ -9,6 +9,7 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.0
 	github.com/stretchr/testify v1.10.0
+	github.com/yagoyudi/cheat v0.0.0-20250705042339-829e853a4d2c
 	gopkg.in/yaml.v3 v3.0.1
 )
 

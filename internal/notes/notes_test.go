@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/yagoyudi/cheat/internal/mock"
-	"github.com/yagoyudi/cheat/internal/note"
-	"github.com/yagoyudi/cheat/internal/notebook"
+	"github.com/yagoyudi/note/internal/mock"
+	"github.com/yagoyudi/note/internal/note"
+	"github.com/yagoyudi/note/internal/notebook"
 )
 
 // Asserts that notes are properly consolidated

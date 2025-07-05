@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/yagoyudi/cheat/internal/config"
-	"github.com/yagoyudi/cheat/internal/repo"
+	"github.com/yagoyudi/note/internal/config"
+	"github.com/yagoyudi/note/internal/repo"
 )
 
 // Prompts the user for a answer

@@ -7,67 +7,46 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/yagoyudi/cheat/internal/config"
-	"github.com/yagoyudi/cheat/internal/notes"
+	"github.com/yagoyudi/note/internal/config"
+	"github.com/yagoyudi/note/internal/notes"
 )
 
 func init() {
-	removeCmd.Flags().StringP("tag", "t", "", "filter cheatsheets by tag")
+	removeCmd.Flags().StringP("tag", "t", "", "filter notes by tag")
 }
 
 var removeCmd = &cobra.Command{
-	Use:     "rm [cheatsheet]",
-	Short:   "Removes a cheatsheet",
+	Use:     "rm [note]",
+	Short:   "Removes a note",
 	Args:    cobra.ExactArgs(1),
-	Example: `  cheat rm kubectl -t community`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Example: `  note rm kubectl -t community`,
+	Run: func(cmd *cobra.Command, args []string) {
 		tags, err := cmd.Flags().GetString("tag")
-		if err != nil {
-			return err
-		}
-
-		cheatsheet := args[0]
+		cobra.CheckErr(err)
 
 		var conf config.Config
-		if err := viper.Unmarshal(&conf); err != nil {
-			return err
-		}
+		cobra.CheckErr(viper.Unmarshal(&conf))
 
-		// load the cheatsheets
-		cheatsheets, err := notes.Load(conf.Notebooks)
-		if err != nil {
-			return err
-		}
+		loadedNotes, err := notes.Load(conf.Notebooks)
+		cobra.CheckErr(err)
 
-		// filter cheatcheats by tag if --tag was provided
 		if cmd.Flags().Changed("tag") {
-			cheatsheets = notes.Filter(
-				cheatsheets,
-				strings.Split(tags, ","),
-			)
+			loadedNotes = notes.Filter(loadedNotes, strings.Split(tags, ","))
 		}
 
-		// consolidate the cheatsheets found on all paths into a single map of
-		// `title` => `sheet` (ie, allow more local cheatsheets to override less
-		// local cheatsheets)
-		consolidated := notes.Consolidate(cheatsheets)
-
-		// fail early if the requested cheatsheet does not exist
-		sheet, ok := consolidated[cheatsheet]
+		noteName := args[0]
+		consolidatedNotes := notes.Consolidate(loadedNotes)
+		note, ok := consolidatedNotes[noteName]
 		if !ok {
-			return fmt.Errorf("No cheatsheet found for '%s'.\n", cheatsheet)
+			fmt.Printf("No cheatsheet found for '%s'.\n", noteName)
+			os.Exit(0)
 		}
 
-		// fail early if the sheet is read-only
-		if sheet.ReadOnly {
-			return fmt.Errorf("cheatsheet '%s' is read-only.\n", cheatsheet)
+		if note.ReadOnly {
+			fmt.Printf("Cheatsheet '%s' is read-only.\n", noteName)
+			os.Exit(0)
 		}
 
-		// otherwise, attempt to delete the sheet
-		if err := os.Remove(sheet.Path); err != nil {
-			return err
-		}
-
-		return nil
+		cobra.CheckErr(os.Remove(note.Path))
 	},
 }

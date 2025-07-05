@@ -11,11 +11,11 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/yagoyudi/cheat/internal/config"
-	"github.com/yagoyudi/cheat/internal/display"
-	"github.com/yagoyudi/cheat/internal/note"
-	"github.com/yagoyudi/cheat/internal/notebook"
-	"github.com/yagoyudi/cheat/internal/notes"
+	"github.com/yagoyudi/note/internal/config"
+	"github.com/yagoyudi/note/internal/display"
+	"github.com/yagoyudi/note/internal/note"
+	"github.com/yagoyudi/note/internal/notebook"
+	"github.com/yagoyudi/note/internal/notes"
 )
 
 func init() {
@@ -26,9 +26,9 @@ func init() {
 var listCmd = &cobra.Command{
 	Use:   "ls [note]",
 	Short: "Lists all available notes",
-	Example: `  cheat ls
-  cheat ls -p personal
-  cheat ls -t networking`,
+	Example: `  note ls
+  note ls -p personal
+  note ls -t networking`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var conf config.Config
 		cobra.CheckErr(viper.Unmarshal(&conf))

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/yagoyudi/cheat/internal/config"
+	"github.com/yagoyudi/note/internal/config"
 )
 
 // Asserts that Faint applies faint formatting

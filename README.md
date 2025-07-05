@@ -1,12 +1,10 @@
-# Cheat
+# note
 
-`cheat` allows you to create and view interactive notes on the command-line. It
+`note` allows you to create and view interactive notes on the command-line. It
 was designed to help remind \*nix system administrators of options for commands
 that they use frequently, but not frequently enough to remember.
 
 ![The obligatory xkcd](http://imgs.xkcd.com/comics/tar.png 'The obligatory xkcd')
-
-Use `cheat` with [cheatsheets](https://github.com/cheat/cheatsheets).
 
 ## Example
 
@@ -14,7 +12,7 @@ The next time you're forced to disarm a nuclear weapon without consulting
 Google, you may run:
 
 ```sh
-cheat view tar
+note v tar
 ```
 
 You will be presented with a note resembling the following:
@@ -41,66 +39,96 @@ tar -cjvf '/path/to/foo.tgz' '/path/to/foo/'
 ```sh
 ---
 syntax: bash
-tags: ["cheat"]
+tags: ["note"]
 ---
 
 # View a note:
-cheat view tar
+note view tar
+note v tar
 
 # View a nested note called bar:
-cheat view foo/bar
-
-# Alias for view:
-cheat v tar
+note view foo/bar
 
 
-# Opens the "tar" cheatsheet for editing, or creates it if it does not exist:
-cheat edit tar
+# Opens the "tar" notesheet for editing, or creates it if it does not exist:
+note edit tar
 
-# Nested cheatsheets are accessed like this:
-cheat edit foo/bar
-
-# Alias for edit:
-cheat e foo/bar
+# Nested notesheets are accessed like this:
+note edit foo/bar
+note e foo/bar
 
 
-# To view the configured cheatpaths:
-cheat dirs
+# To list the notebooks:
+note books
+note b
 
 
-# To list all available cheatsheets:
-cheat ls
+# To list all available notes:
+note ls
 
-# To list all cheatsheets that are tagged with "networking":
-cheat ls -t networking
+# To list all notesheets that are tagged with "networking":
+note ls -t networking
 
-# To list all cheatsheets on the "personal" path:
-cheat ls -p personal
+# To list all notesheets on the "personal" path:
+note ls -p personal
 
 
-# To search for the phrase "ssh" among cheatsheets:
-cheat search ssh
+# To search for the phrase "ssh" among notesheets:
+note search ssh
+note s ssh
 
-# To search (by regex) for cheatsheets that contain an IP address:
-cheat search -r '(?:[0-9]{1,3}\.){3}[0-9]{1,3}'
+# To search (by regex) for notesheets that contain an IP address:
+note search -r '(?:[0-9]{1,3}\.){3}[0-9]{1,3}'
 
 # Flags may be combined:
-cheat search '(?:[0-9]{1,3}\.){3}[0-9]{1,3}' -p personal -t networking --regex
-
-# Alias for search:
-cheat s ssh
+note search '(?:[0-9]{1,3}\.){3}[0-9]{1,3}' -p personal -t networking --regex
 ```
 
-This is also a note.
+Yes, this is also a note.
 
 ## Installing
 
 ```sh
-gh repo clone yagoyudi/cheat
+gh repo clone yagoyudi/note
 go build .
 ```
 
 Or install a binary from the releases.
+
+## Notebook
+
+Notes are stored on notebooks, which are directories that contain notes.
+Notebooks are specified in the `config.yml` file.
+
+It can be useful to configure `note` against multiple notebooks. A common
+pattern is to store notes from multiple repositories on individual notebooks:
+
+```yaml
+# config.yml:
+# ...
+notebooks:
+  - name: community
+    # The path's location on the filesystem:
+    path: ~/documents/note/community
+    # These tags will be applied to all sheets on the path:
+    tags: [ community ]
+    # If true, `note` will not create new note here:
+    readonly: true
+
+  - name: personal
+    path: ~/documents/note/personal
+    tags: [ personal ]
+    readonly: false
+# ...
+```
+
+The `readonly` option instructs `note` not to edit (or create) any note on the
+notebook. This is useful to prevent merge-conflicts from arising on upstream
+note repositories.
+
+If a user attempts to edit a note on a read-only notebook, `note` will
+transparently copy that note to a writeable directory before opening it for
+editing.
 
 ## Notes
 
@@ -119,48 +147,11 @@ tags: [ array, map ]
 const squares = [1, 2, 3, 4].map(x => x * x);
 ```
 
-The `cheat` executable includes no notebooks, but [community-sourced
-cheatsheets are available](https://github.com/cheat/cheatsheets). You will be
-asked if you would like to install the community-sourced cheatsheets the first
-time you run `cheat`.
-
-## Notebook
-
-Notes are stored on "notebooks", which are directories that contain notes.
-Notebooks are specified in the `conf.yml` file.
-
-It can be useful to configure `cheat` against multiple notebooks. A common
-pattern is to store notes from multiple repositories on individual notebooks:
-
-```yaml
-# conf.yml:
-# ...
-notebooks:
-  - name: community
-    # The path's location on the filesystem:
-    path: ~/documents/cheat/community
-    # These tags will be applied to all sheets on the path:
-    tags: [ community ]
-    # If true, `cheat` will not create new note here:
-    readonly: true
-
-  - name: personal
-    path: ~/documents/cheat/personal
-    tags: [ personal ]
-    readonly: false
-# ...
-```
-
-The `readonly` option instructs `cheat` not to edit (or create) any note on the
-notebook. This is useful to prevent merge-conflicts from arising on upstream
-note repositories.
-
-If a user attempts to edit a note on a read-only notebook, `cheat` will
-transparently copy that note to a writeable directory before opening it for
-editing.
+You will be asked if you would like to install the community-sourced notebooks
+the first time you run `note`.
 
 ## Autocompletion
 
 ```sh
-cheat help completion
+note help completion
 ```

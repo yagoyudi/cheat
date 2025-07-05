@@ -10,9 +10,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/yagoyudi/cheat/internal/note"
-	"github.com/yagoyudi/cheat/internal/notebook"
-	"github.com/yagoyudi/cheat/internal/repo"
+	"github.com/yagoyudi/note/internal/note"
+	"github.com/yagoyudi/note/internal/notebook"
+	"github.com/yagoyudi/note/internal/repo"
 )
 
 // Applies notes "overrides", resolving title conflicts that exist among

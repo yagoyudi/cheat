@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/yagoyudi/cheat/internal/installer"
+	"github.com/yagoyudi/note/internal/installer"
 )
 
 const configTemplate = `---
@@ -97,12 +97,12 @@ var initCmd = &cobra.Command{
 	Use:     "init",
 	Aliases: []string{"i"},
 	Args:    cobra.ExactArgs(0),
-	Short:   `Setup cheat`,
-	Example: "  cheat init",
+	Short:   `Setup note`,
+	Example: "  note init",
 	Run: func(cmd *cobra.Command, _ []string) {
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
-		configPath := filepath.Join(home, ".config", "cheat")
+		configPath := filepath.Join(home, ".config", "note")
 		configFile := filepath.Join(configPath, "config.yaml")
 		err = viper.ReadInConfig()
 		if err != nil {

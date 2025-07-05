@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/alecthomas/chroma/v2/quick"
-	"github.com/yagoyudi/cheat/internal/config"
+	"github.com/yagoyudi/note/internal/config"
 	"gopkg.in/yaml.v3"
 )
 

@@ -7,10 +7,10 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/yagoyudi/cheat/internal/config"
-	"github.com/yagoyudi/cheat/internal/display"
-	"github.com/yagoyudi/cheat/internal/notebook"
-	"github.com/yagoyudi/cheat/internal/notes"
+	"github.com/yagoyudi/note/internal/config"
+	"github.com/yagoyudi/note/internal/display"
+	"github.com/yagoyudi/note/internal/notebook"
+	"github.com/yagoyudi/note/internal/notes"
 )
 
 func init() {
@@ -23,9 +23,9 @@ func init() {
 var searchCmd = &cobra.Command{
 	Use:     "search [phrase]",
 	Aliases: []string{"s"},
-	Short:   "Searches for strings in cheatsheets",
+	Short:   "Searches for strings in notes",
 	Args:    cobra.ExactArgs(1),
-	Example: `  cheat search '(?:[0-9]{1,3}\.){3}[0-9]{1,3}' -p personal -t networking -r`,
+	Example: `  note search '(?:[0-9]{1,3}\.){3}[0-9]{1,3}' -p personal -t networking -r`,
 	Run: func(cmd *cobra.Command, args []string) {
 		phrase := args[0]
 

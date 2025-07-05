@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/mattn/go-isatty"
-	"github.com/yagoyudi/cheat/internal/notebook"
+	"github.com/yagoyudi/note/internal/notebook"
 
 	"gopkg.in/yaml.v3"
 )
@@ -57,8 +57,8 @@ func New(_ map[string]interface{}, confPath string, resolve bool) (Config, error
 		conf.Notebooks = append(conf.Notebooks, path)
 	}
 
-	for i, cheatpath := range conf.Notebooks {
-		expanded, err := expandPath(cheatpath.Path)
+	for i, notebook := range conf.Notebooks {
+		expanded, err := expandPath(notebook.Path)
 		if err != nil {
 			return Config{}, fmt.Errorf("config: failed to expand ~: %v", err)
 		}

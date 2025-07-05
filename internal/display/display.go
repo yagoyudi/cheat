@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/yagoyudi/cheat/internal/config"
+	"github.com/yagoyudi/note/internal/config"
 )
 
 // Returns a faintly-colored string that's used to de-prioritize text written

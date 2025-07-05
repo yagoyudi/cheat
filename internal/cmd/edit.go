@@ -8,21 +8,21 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/yagoyudi/cheat/internal/notebook"
-	"github.com/yagoyudi/cheat/internal/notes"
+	"github.com/yagoyudi/note/internal/notebook"
+	"github.com/yagoyudi/note/internal/notes"
 )
 
 func init() {
-	editCmd.Flags().StringP("tag", "t", "", "filter cheatsheets by tag")
+	editCmd.Flags().StringP("tag", "t", "", "filter notes by tag")
 }
 
 var editCmd = &cobra.Command{
-	Use:     "edit [cheatsheet]",
+	Use:     "edit [note]",
 	Aliases: []string{"e"},
-	Short:   "Opens a cheatsheet for editing (or creates it if it doesn't exist)",
+	Short:   "Opens a note for editing (or creates it if it doesn't exist)",
 	Args:    cobra.ExactArgs(1),
-	Example: `  cheat edit tar     # opens the "tar" cheatsheet for editing, or creates it if it does not exist
-  cheat edit foo/bar # nested cheatsheets are accessed like this`,
+	Example: `  note edit tar     # opens the "tar" note for editing, or creates it if it does not exist
+  note e foo/bar # nested notes are accessed like this`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var notebooks []notebook.Notebook
 		cobra.CheckErr(viper.UnmarshalKey("cheatpaths", &notebooks))

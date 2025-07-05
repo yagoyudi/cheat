@@ -1,8 +1,6 @@
 package main
 
-import (
-	"github.com/yagoyudi/cheat/internal/cmd"
-)
+import "github.com/yagoyudi/note/internal/cmd"
 
 func main() {
 	cmd.Execute()

@@ -7,9 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/yagoyudi/cheat/internal/config"
-	"github.com/yagoyudi/cheat/internal/display"
-	"github.com/yagoyudi/cheat/internal/notes"
+	"github.com/yagoyudi/note/internal/config"
+	"github.com/yagoyudi/note/internal/display"
+	"github.com/yagoyudi/note/internal/notes"
 )
 
 func init() {

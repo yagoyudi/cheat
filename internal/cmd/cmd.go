@@ -11,7 +11,7 @@ import (
 func init() {
 	home, err := os.UserHomeDir()
 	cobra.CheckErr(err)
-	configPath := filepath.Join(home, ".config", "cheat")
+	configPath := filepath.Join(home, ".config", "note")
 	viper.AddConfigPath(configPath)
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -31,9 +31,9 @@ func init() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "cheat",
-	Short: "Cheat allows you to create and view interactive cheatsheets on the command-line.",
-	Long:  "Cheat was designed to help remind *nix system administrators of options for commands that they use frequently, but not frequently enough to remember.",
+	Use:   "note",
+	Short: "Note allows you to create and view interactive notes on the command-line.",
+	Long:  "Note was designed to help remind *nix system administrators of options for commands that they use frequently, but not frequently enough to remember.",
 }
 
 func Execute() {

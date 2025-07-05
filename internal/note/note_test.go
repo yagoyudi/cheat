@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/yagoyudi/cheat/internal/config"
-	"github.com/yagoyudi/cheat/internal/mock"
+	"github.com/yagoyudi/note/internal/config"
+	"github.com/yagoyudi/note/internal/mock"
 )
 
 // Asserts that notes initialize properly
