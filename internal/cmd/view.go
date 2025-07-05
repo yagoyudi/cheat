@@ -23,7 +23,7 @@ var viewCmd = &cobra.Command{
 	Short:   "Displays a note for viewing",
 	Args:    cobra.ExactArgs(1),
 	Example: `  note view kubectl
-  note view kubectl -t community`,
+  note v kubectl -t community`,
 	Run: func(cmd *cobra.Command, args []string) {
 		noteName := args[0]
 
@@ -39,12 +39,10 @@ var viewCmd = &cobra.Command{
 		loadedNotes, err := notes.Load(conf.Notebooks)
 		cobra.CheckErr(err)
 
-		// Filter notes by tag if --tag was provided:
 		if cmd.Flags().Changed("tag") {
 			loadedNotes = notes.Filter(loadedNotes, strings.Split(tags, ","))
 		}
 
-		// If --all was passed, display notes from all notepaths:
 		if allFlag {
 			out := ""
 			for _, noteByName := range loadedNotes {
@@ -63,11 +61,7 @@ var viewCmd = &cobra.Command{
 			os.Exit(0)
 		}
 
-		// Consolidate the notes found on all paths into a single map of
-		// `title` => `note` (ie, allow more local notes to override less
-		// local notes):
 		consolidatedNotes := notes.Consolidate(loadedNotes)
-
 		note, ok := consolidatedNotes[noteName]
 		if !ok {
 			fmt.Printf("No note found for '%s'\n", noteName)

@@ -110,10 +110,7 @@ var initCmd = &cobra.Command{
 			if !ok {
 				cobra.CheckErr(err)
 			}
-			yes, err := installer.Prompt(
-				"A config file was not found. Would you like to create one now? [Y/n]",
-				true,
-			)
+			yes, err := installer.Prompt("A config file was not found. Would you like to create one now? [Y/n]", true)
 			cobra.CheckErr(err)
 
 			if !yes {

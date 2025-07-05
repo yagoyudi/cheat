@@ -5,8 +5,10 @@ package notes
 import (
 	"fmt"
 	"io/fs"
+	"maps"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 
@@ -16,13 +18,11 @@ import (
 )
 
 // Applies notes "overrides", resolving title conflicts that exist among
-// cheatpaths by preferring more local cheatsheets over less local cheatsheets.
+// notebooks by preferring more local notes over less local notes
 func Consolidate(notebooks []map[string]note.Note) map[string]note.Note {
 	consolidated := make(map[string]note.Note)
 	for _, notebook := range notebooks {
-		for title, note := range notebook {
-			consolidated[title] = note
-		}
+		maps.Copy(consolidated, notebook)
 	}
 	return consolidated
 }
@@ -60,9 +60,7 @@ func Tags(notebooks []map[string]note.Note) []string {
 	for tag := range tags {
 		sorted = append(sorted, tag)
 	}
-	sort.Slice(sorted, func(i, j int) bool {
-		return sorted[i] < sorted[j]
-	})
+	slices.Sort(sorted)
 	return sorted
 }
 
@@ -97,20 +95,17 @@ func Filter(notebooks []map[string]note.Note, tags []string) []map[string]note.N
 	return filtered
 }
 
-// Produces a map of note titles to filesystem paths
+// Produces a map of note names to filesystem paths
 func Load(notebooks []notebook.Notebook) ([]map[string]note.Note, error) {
-	// Create a slice of maps of notes. This structure will store all notes
-	// that are associated with each cheatpath.
-	notes := make([]map[string]note.Note, len(notebooks))
-
+	notesByName := make([]map[string]note.Note, len(notebooks))
 	for _, notebook := range notebooks {
-		// Vivify the map of note on this specific notepath:
-		pathnotes := make(map[string]note.Note)
+		noteByName := make(map[string]note.Note)
 
-		// Recursively iterate over the notepath, and load each note
+		// Recursively iterate over the notebook, and load each note
 		// encountered along the way:
 		err := filepath.Walk(
-			notebook.Path, func(path string, info os.FileInfo, err error) error {
+			notebook.Path,
+			func(path string, info os.FileInfo, err error) error {
 				// Fail if an error occurred while walking the directory:
 				if err != nil {
 					return fmt.Errorf("failed to walk path: %v", err)
@@ -121,9 +116,9 @@ func Load(notebooks []notebook.Notebook) ([]map[string]note.Note, error) {
 					return nil
 				}
 
-				// Calculate the notes's "title" (the phrase with which it may be
-				// accessed. Eg: `cheat tar` - `tar` is the title):
-				title := strings.TrimPrefix(
+				// Calculate the notes's "name" (the phrase with which it may be
+				// accessed. Eg: `cheat tar` - `tar` is the name):
+				name := strings.TrimPrefix(
 					strings.TrimPrefix(path, notebook.Path),
 					string(os.PathSeparator),
 				)
@@ -137,19 +132,18 @@ func Load(notebooks []notebook.Notebook) ([]map[string]note.Note, error) {
 					return fs.SkipDir
 				}
 
-				n, err := note.New(title, notebook.Name, path, notebook.Tags, notebook.ReadOnly)
+				note, err := note.New(name, notebook.Name, path, notebook.Tags, notebook.ReadOnly)
 				if err != nil {
-					return fmt.Errorf("failed to load sheet: %s, path: %s, err: %v", title, path, err)
+					return fmt.Errorf("failed to load note: %s, path: %s, err: %v", name, path, err)
 				}
-
-				// Register the note on its notepath, keyed by its title:
-				pathnotes[title] = n
+				noteByName[name] = note
 				return nil
-			})
+			},
+		)
 		if err != nil {
-			return notes, fmt.Errorf("failed to load cheatsheets: %v", err)
+			return notesByName, fmt.Errorf("failed to load notes: %v", err)
 		}
-		notes = append(notes, pathnotes)
+		notesByName = append(notesByName, noteByName)
 	}
-	return notes, nil
+	return notesByName, nil
 }

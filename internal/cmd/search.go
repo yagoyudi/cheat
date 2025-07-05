@@ -17,7 +17,7 @@ func init() {
 	searchCmd.Flags().StringP("tag", "t", "", "filter notes by tag")
 	searchCmd.Flags().StringP("note", "n", "", "constrain the search only to matching notes")
 	searchCmd.Flags().BoolP("regex", "r", false, "treat search [phrase] as a regex")
-	searchCmd.Flags().StringP("path", "p", "", "filter the notebooks")
+	searchCmd.Flags().StringP("book", "b", "", "filter the notebooks")
 }
 
 var searchCmd = &cobra.Command{
@@ -38,7 +38,7 @@ var searchCmd = &cobra.Command{
 		var conf config.Config
 		cobra.CheckErr(viper.Unmarshal(&conf))
 
-		if cmd.Flags().Changed("path") {
+		if cmd.Flags().Changed("book") {
 			path, err := cmd.Flags().GetString("path")
 			cobra.CheckErr(err)
 
@@ -64,10 +64,10 @@ var searchCmd = &cobra.Command{
 					continue
 				}
 
-				// assume that we want to perform a case-insensitive search for <phrase>
+				// Assume that we want to perform a case-insensitive search for
+				// <phrase>, unless --regex is provided, in which case we pass
+				// the regex unaltered:
 				pattern := "(?i)" + phrase
-
-				// unless --regex is provided, in which case we pass the regex unaltered
 				if regexFlag {
 					pattern = phrase
 				}
@@ -86,11 +86,8 @@ var searchCmd = &cobra.Command{
 
 				// Display the note body:
 				out += fmt.Sprintf("%s %s\n%s\n",
-					// Append the note title:
 					note.Name,
-					// Append the notebook:
 					display.Faint(fmt.Sprintf("(%s)", note.Notebook), conf),
-					// Indent each line of content:
 					display.Indent(note.Body),
 				)
 			}

@@ -20,7 +20,7 @@ import (
 
 func init() {
 	listCmd.Flags().StringP("tag", "t", "", "filter notes by tag")
-	listCmd.Flags().StringP("path", "p", "", "filter notes by notebook path")
+	listCmd.Flags().StringP("book", "b", "", "filter notes by notebook")
 }
 
 var listCmd = &cobra.Command{
@@ -33,10 +33,9 @@ var listCmd = &cobra.Command{
 		var conf config.Config
 		cobra.CheckErr(viper.Unmarshal(&conf))
 
-		if cmd.Flags().Changed("path") {
-			path, err := cmd.Flags().GetString("path")
+		if cmd.Flags().Changed("book") {
+			path, err := cmd.Flags().GetString("book")
 			cobra.CheckErr(err)
-
 			conf.Notebooks, err = notebook.Filter(conf.Notebooks, path)
 			cobra.CheckErr(err)
 		}
@@ -50,9 +49,7 @@ var listCmd = &cobra.Command{
 			loadedNotes = notes.Filter(loadedNotes, strings.Split(tag, ","))
 		}
 
-		// Instead of "consolidating" all of the notes (ie, overwriting global
-		// notes with local notes), here we simply want to create a slice
-		// containing all notes:
+		// Create a slice containing all notes:
 		flattenedNotes := []note.Note{}
 		for _, pathnotes := range loadedNotes {
 			for _, note := range pathnotes {
@@ -60,15 +57,12 @@ var listCmd = &cobra.Command{
 			}
 		}
 
-		// Sort the "flattened" notes alphabetically:
+		// Sort alphabetically:
 		sort.Slice(flattenedNotes, func(i, j int) bool {
 			return flattenedNotes[i].Name < flattenedNotes[j].Name
 		})
 
 		// Filter if [note] was specified:
-		// NOTE: our docopt specification is misleading here. When used in
-		// conjunction with `-l`, `[note]` is really a pattern against which to
-		// filter note titles.
 		if len(args) >= 1 {
 			noteName := args[0]
 			filteredNotes := []note.Note{}

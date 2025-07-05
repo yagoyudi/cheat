@@ -21,11 +21,12 @@ var editCmd = &cobra.Command{
 	Aliases: []string{"e"},
 	Short:   "Opens a note for editing (or creates it if it doesn't exist)",
 	Args:    cobra.ExactArgs(1),
-	Example: `  note edit tar     # opens the "tar" note for editing, or creates it if it does not exist
-  note e foo/bar # nested notes are accessed like this`,
+	Example: `  note edit tar
+  note e tar
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var notebooks []notebook.Notebook
-		cobra.CheckErr(viper.UnmarshalKey("cheatpaths", &notebooks))
+		cobra.CheckErr(viper.UnmarshalKey("notebooks", &notebooks))
 
 		loadedNotes, err := notes.Load(notebooks)
 		cobra.CheckErr(err)
@@ -38,51 +39,35 @@ var editCmd = &cobra.Command{
 			loadedNotes = notes.Filter(loadedNotes, strings.Split(tag, ","))
 		}
 
-		// consolidate the cheatsheets found on all paths into a single map of
-		// `title` => `sheet` (ie, allow more local cheatsheets to override less
-		// local cheatsheets)
-		consolidated := notes.Consolidate(loadedNotes)
+		consolidatedNotes := notes.Consolidate(loadedNotes)
 
 		// The file path of the note to edit:
 		var editpath string
 
-		// Determine if the sheet exists:
+		// Determine if the note exists:
 		noteName := args[0]
-		note, ok := consolidated[noteName]
+		note, ok := consolidatedNotes[noteName]
 		if ok {
 			if note.ReadOnly {
-				// compute the new edit path
-				// begin by getting a writeable cheatpath
+				// Compute the new edit path:
 				writepath, err := notebook.Writeable(notebooks)
 				cobra.CheckErr(err)
-
-				// compute the new edit path
 				editpath = filepath.Join(writepath.Path, note.Name)
-
-				// create any necessary subdirectories
 				dirs := filepath.Dir(editpath)
 				if dirs != "." {
 					cobra.CheckErr(os.MkdirAll(dirs, 0755))
 				}
 
-				// Copy the sheet to the new edit path:
+				// Copy the note to the new edit path:
 				cobra.CheckErr(note.Copy(editpath))
-
 			} else {
 				editpath = note.Path
 			}
 		} else {
 			// Create note:
-
-			// compute the new edit path
-			// begin by getting a writeable cheatpath
 			writepath, err := notebook.Writeable(notebooks)
 			cobra.CheckErr(err)
-
-			// compute the new edit path
 			editpath = filepath.Join(writepath.Path, noteName)
-
-			// create any necessary subdirectories
 			dirs := filepath.Dir(editpath)
 			if dirs != "." {
 				cobra.CheckErr(os.MkdirAll(dirs, 0755))
