@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 
@@ -101,11 +102,11 @@ func (n *Note) Search(reg *regexp.Regexp) string {
 
 // Copies a note to a new location
 func (n *Note) Copy(dest string) error {
-	// NB: while the `infile` has already been loaded and parsed into a `sheet`
-	// struct, we're going to read it again here. This is a bit wasteful, but
-	// necessary if we want the "raw" file contents (including the front-matter).
-	// This is because the frontmatter is parsed and then discarded when the file
-	// is loaded via `sheets.Load`.
+	// NOTE: while the `infile` has already been loaded and parsed into a
+	// `note` struct, we're going to read it again here. This is a bit
+	// wasteful, but necessary if we want the "raw" file contents (including
+	// the header). This is because the header is parsed and then discarded
+	// when the file is loaded via `notes.Load`.
 	infile, err := os.Open(n.Path)
 	if err != nil {
 		return fmt.Errorf("failed to open cheatsheet: %s, %v", n.Path, err)
@@ -156,12 +157,7 @@ func (n *Note) Colorize(conf config.Config) {
 	n.Body = buf.String()
 }
 
-// Returns true if a sheet was tagged with `target`
-func (s *Note) Tagged(target string) bool {
-	for _, tag := range s.Tags {
-		if tag == target {
-			return true
-		}
-	}
-	return false
+// Returns true if a note was tagged with `target`
+func (s *Note) TaggedWith(target string) bool {
+	return slices.Contains(s.Tags, target)
 }

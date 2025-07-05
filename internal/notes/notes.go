@@ -80,7 +80,7 @@ func Filter(notebooks []map[string]note.Note, tags []string) []map[string]note.N
 			// Iterate over each tag. If the note does not match *all* tags,
 			// filter it out:
 			for _, tag := range tags {
-				if !note.Tagged(strings.TrimSpace(tag)) {
+				if !note.TaggedWith(strings.TrimSpace(tag)) {
 					keep = false
 				}
 			}

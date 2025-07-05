@@ -225,9 +225,9 @@ func TestTagged(t *testing.T) {
 
 	// Assert that set tags are recognized as set:
 	for _, tag := range tags {
-		assert.NotEqual(t, false, note.Tagged(tag), "failed to recognize tag")
+		assert.NotEqual(t, false, note.TaggedWith(tag), "failed to recognize tag")
 	}
 
 	// Assert that unset tags are recognized as unset:
-	assert.Equal(t, false, note.Tagged("qux"), "failed to recognize absent tag")
+	assert.Equal(t, false, note.TaggedWith("qux"), "failed to recognize absent tag")
 }
