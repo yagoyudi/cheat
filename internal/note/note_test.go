@@ -16,13 +16,13 @@ func TestNoteSuccess(t *testing.T) {
 	note, err := New(
 		"foo",
 		"community",
-		mock.Path("sheet/foo"),
+		mock.Path("note/foo"),
 		[]string{"alpha", "bravo"},
 		false,
 	)
-	assert.NoError(t, err, "failed to load sheet")
+	assert.NoError(t, err, "failed to load note")
 	assert.Equal(t, "foo", note.Name, "failed to init title")
-	assert.Equal(t, mock.Path("sheet/foo"), note.Path, "failed to init path")
+	assert.Equal(t, mock.Path("note/foo"), note.Path, "failed to init path")
 	wantText := "# To foo the bar:\n  foo bar\n"
 	assert.Equal(t, wantText, note.Body, "failed to init text")
 
@@ -58,7 +58,7 @@ func TestNoteHeaderFailure(t *testing.T) {
 }
 
 // Asserts that raw note is properly parsed when it contains header
-func TestHasFrontmatter(t *testing.T) {
+func TestHasHeader(t *testing.T) {
 	raw := `---
 syntax: go
 tags: [ test ]
@@ -80,27 +80,24 @@ To foo the bar: baz`
 }
 
 // Asserts that way note is properly parsed when it does not contain header
-func TestHasNoFrontmatter(t *testing.T) {
+func TestHasNoHeader(t *testing.T) {
 	raw := "To foo the bar: baz"
-
-	// parse the frontmatter
 	header, body, err := parse(raw)
-	assert.NoError(t, err, "failed to parse markdown")
-	assert.Equal(t, raw, body, "failed to parse text")
+	assert.NoError(t, err, "failed to parse raw note")
+	assert.Equal(t, raw, body, "failed to parse body")
 	assert.Equal(t, "", header.Syntax, "failex to parse syntax")
 	assert.Equal(t, 0, len(header.Tags), "failed to parse tags")
 }
 
 // Asserts that raw note is properly parsed when it contains invalid header
-func TestHasInvalidFrontmatter(t *testing.T) {
+func TestHasInvalidHeader(t *testing.T) {
 	raw := `---
 syntax: go
 tags: [ test ]
 To foo the bar: baz`
 
-	_, body, err := parse(raw)
-	assert.Error(t, err, "failed to error on invalid frontmatter")
-	assert.Equal(t, raw, body, "failed to parse text")
+	_, _, err := parse(raw)
+	assert.Error(t, err, "failed to error on invalid header")
 }
 
 // Ensures that the expected output is returned when no matches are found

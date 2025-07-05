@@ -6,88 +6,88 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Asserts that valid notepaths validate successfully
+// Asserts that valid notebook validate successfully
 func TestValidateValid(t *testing.T) {
-	notepath := Notebook{
+	notebook := Notebook{
 		Name:     "foo",
 		Path:     "/foo",
 		ReadOnly: false,
 		Tags:     []string{},
 	}
-	err := notepath.Validate()
+	err := notebook.Validate()
 	assert.NoError(t, err)
 }
 
-// Asserts that paths that are missing a name fail to validate
+// Asserts that notebooks that are missing a name fail to validate
 func TestValidateMissingName(t *testing.T) {
-	notepath := Notebook{
+	notebook := Notebook{
 		Path:     "/foo",
 		ReadOnly: false,
 		Tags:     []string{},
 	}
-	err := notepath.Validate()
+	err := notebook.Validate()
 	assert.Error(t, err)
 }
 
-// Asserts that paths that are missing a path fail to validate
+// Asserts that notebooks that are missing a path fail to validate
 func TestValidateMissingPath(t *testing.T) {
-	notepath := Notebook{
+	notebook := Notebook{
 		Name:     "foo",
 		ReadOnly: false,
 		Tags:     []string{},
 	}
-	err := notepath.Validate()
+	err := notebook.Validate()
 	assert.Error(t, err)
 }
 
-// Asserts that the proper notepath is returned when the requested notepath
+// Asserts that the proper notebook is returned when the requested notebook
 // exists
 func TestFilterSuccess(t *testing.T) {
-	paths := []Notebook{
+	notebooks := []Notebook{
 		{Name: "foo"},
 		{Name: "bar"},
 		{Name: "baz"},
 	}
 
-	paths, err := Filter(paths, "bar")
+	notebooks, err := Filter(notebooks, "bar")
 	assert.NoError(t, err)
 
-	assert.Equal(t, 1, len(paths))
-	assert.Equal(t, "bar", paths[0].Name)
+	assert.Equal(t, 1, len(notebooks))
+	assert.Equal(t, "bar", notebooks[0].Name)
 }
 
-// Asserts that an error is returned when a non-existent notepath is requested
+// Asserts that an error is returned when a non-existent notebook is requested
 func TestFilterFailure(t *testing.T) {
-	paths := []Notebook{
+	notebooks := []Notebook{
 		{Name: "foo"},
 		{Name: "bar"},
 		{Name: "baz"},
 	}
-	_, err := Filter(paths, "qux")
+	_, err := Filter(notebooks, "qux")
 	assert.Error(t, err)
 }
 
-// Asserts that Writeable returns the appropriate notepath when a writeable
-// notepath exists
+// Asserts that Writeable returns the appropriate notebook when a writeable
+// notebook exists
 func TestWriteableOK(t *testing.T) {
-	notepaths := []Notebook{
+	notebooks := []Notebook{
 		{Path: "/foo", ReadOnly: true},
 		{Path: "/bar", ReadOnly: false},
 		{Path: "/baz", ReadOnly: true},
 	}
-	got, err := Writeable(notepaths)
+	got, err := Writeable(notebooks)
 	assert.NoError(t, err)
 	assert.Equal(t, "/bar", got.Path)
 	assert.Equal(t, false, got.ReadOnly)
 }
 
-// Asserts that Writeable returns an error when no writeable notepaths exist
+// Asserts that Writeable returns an error when no writeable notebook exist
 func TestWriteableNotOK(t *testing.T) {
-	notepaths := []Notebook{
+	notebooks := []Notebook{
 		{Path: "/foo", ReadOnly: true},
 		{Path: "/bar", ReadOnly: true},
 		{Path: "/baz", ReadOnly: true},
 	}
-	_, err := Writeable(notepaths)
-	assert.Error(t, err, "failed to return an error when no writeable paths found")
+	_, err := Writeable(notebooks)
+	assert.Error(t, err, "failed to return an error when no writeable notebook found")
 }

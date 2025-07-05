@@ -34,7 +34,7 @@ type Note struct {
 }
 
 // Initializes a new note
-func New(title string, cheatpath string, path string, tags []string, readOnly bool) (Note, error) {
+func New(name string, notebook string, path string, tags []string, readOnly bool) (Note, error) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		return Note{}, fmt.Errorf("failed to read file: %s, %v", path, err)
@@ -42,7 +42,7 @@ func New(title string, cheatpath string, path string, tags []string, readOnly bo
 
 	header, body, err := parse(string(raw))
 	if err != nil {
-		return Note{}, fmt.Errorf("failed to parse front-matter: %v", err)
+		return Note{}, fmt.Errorf("failed to parse header: %v", err)
 	}
 
 	// Merge the sheet-specific tags into the cheatpath tags:
@@ -52,8 +52,8 @@ func New(title string, cheatpath string, path string, tags []string, readOnly bo
 	sort.Strings(tags)
 
 	return Note{
-		Name:     title,
-		Notebook: cheatpath,
+		Name:     name,
+		Notebook: notebook,
 		Path:     path,
 		Body:     body,
 		Tags:     tags,
@@ -64,30 +64,24 @@ func New(title string, cheatpath string, path string, tags []string, readOnly bo
 
 // Parses note header
 func parse(raw string) (noteHeader, string, error) {
-	// determine the appropriate line-break for the platform
-	linebreak := "\n"
+	delim := "---\n"
 
-	// specify the frontmatter delimiter
-	delim := fmt.Sprintf("---%s", linebreak)
-
-	// initialize a frontmatter struct
-
-	// if the markdown does not contain frontmatter, pass it through unmodified
+	// If the raw note does not contain header, pass it through unmodified:
 	if !strings.HasPrefix(raw, delim) {
 		return noteHeader{}, raw, nil
 	}
 
-	// otherwise, split the frontmatter and cheatsheet text
+	// Split the header and body:
 	parts := strings.SplitN(raw, delim, 3)
 
-	// return an error if the frontmatter parses into the wrong number of parts
+	// Return an error if the header parses into the wrong number of parts:
 	if len(parts) != 3 {
-		return noteHeader{}, "", fmt.Errorf("failed to delimit frontmatter")
+		return noteHeader{}, "", fmt.Errorf("failed to delimit header")
 	}
 
 	var header noteHeader
 	if err := yaml.Unmarshal([]byte(parts[1]), &header); err != nil {
-		return noteHeader{}, "", fmt.Errorf("failed to unmarshal frontmatter: %v", err)
+		return noteHeader{}, "", fmt.Errorf("failed to unmarshal header: %v", err)
 	}
 
 	return header, parts[2], nil

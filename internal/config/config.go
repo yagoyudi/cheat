@@ -26,7 +26,7 @@ type Config struct {
 }
 
 // Returns a new Config struct
-func New(_ map[string]interface{}, confPath string, resolve bool) (Config, error) {
+func New(_ map[string]any, confPath string, resolve bool) (Config, error) {
 	buf, err := os.ReadFile(confPath)
 	if err != nil {
 		return Config{}, fmt.Errorf("config: could not read config file: %v", err)
@@ -63,14 +63,14 @@ func New(_ map[string]interface{}, confPath string, resolve bool) (Config, error
 			return Config{}, fmt.Errorf("config: failed to expand ~: %v", err)
 		}
 
-		// follow symlinks
+		// Follow symlinks:
 		//
-		// NB: `resolve` is an ugly kludge that exists for the sake of unit-tests.
-		// It's necessary because `EvalSymlinks` will error if the symlink points
-		// to a non-existent location on the filesystem. When unit-testing,
-		// however, we don't want to have dependencies on the filesystem. As such,
-		// `resolve` is a switch that allows us to turn off symlink resolution when
-		// running the config tests.
+		// NOTE: `resolve` is an ugly kludge that exists for the sake of
+		// unit-tests. It's necessary because `EvalSymlinks` will error if the
+		// symlink points to a non-existent location on the filesystem. When
+		// unit-testing, however, we don't want to have dependencies on the
+		// filesystem. As such, `resolve` is a switch that allows us to turn
+		// off symlink resolution when running the config tests.
 		if resolve {
 			evaled, err := filepath.EvalSymlinks(expanded)
 			if err != nil {
@@ -100,8 +100,7 @@ func New(_ map[string]interface{}, confPath string, resolve bool) (Config, error
 
 // Attempts to locate an editor that's appropriate for the environment
 func Editor() (string, error) {
-	// Look for `nano` and `vim` on the `PATH`
-	def, _ := exec.LookPath("editor") // default `editor` wrapper
+	def, _ := exec.LookPath("editor")
 	nano, _ := exec.LookPath("nano")
 	vim, _ := exec.LookPath("vim")
 	editors := []string{
@@ -201,22 +200,22 @@ func Paths(sys string, home string, envvars map[string]string) ([]string, error)
 		"linux", "netbsd", "openbsd", "plan9", "solaris":
 		paths := []string{}
 
-		// don't include the `XDG_CONFIG_HOME` path if that envvar is not set
+		// Don't include the `XDG_CONFIG_HOME` path if that envvar is not set:
 		if xdgpath, ok := envvars["XDG_CONFIG_HOME"]; ok {
-			paths = append(paths, filepath.Join(xdgpath, "cheat", "conf.yml"))
+			paths = append(paths, filepath.Join(xdgpath, "note", "conf.yml"))
 		}
 
 		paths = append(paths, []string{
-			filepath.Join(home, ".config", "cheat", "conf.yml"),
-			filepath.Join(home, ".cheat", "conf.yml"),
-			"/etc/cheat/conf.yml",
+			filepath.Join(home, ".config", "note", "conf.yml"),
+			filepath.Join(home, ".note", "conf.yml"),
+			"/etc/note/conf.yml",
 		}...)
 
 		return paths, nil
 	case "windows":
 		return []string{
-			filepath.Join(envvars["APPDATA"], "cheat", "conf.yml"),
-			filepath.Join(envvars["PROGRAMDATA"], "cheat", "conf.yml"),
+			filepath.Join(envvars["APPDATA"], "note", "conf.yml"),
+			filepath.Join(envvars["PROGRAMDATA"], "note", "conf.yml"),
 		}, nil
 	default:
 		return []string{}, fmt.Errorf("unsupported os: %s", sys)
@@ -231,7 +230,7 @@ func (c *Config) Validate() error {
 
 	// Assert that at least one cheatpath was specified:
 	if len(c.Notebooks) == 0 {
-		return fmt.Errorf("config error: no cheatpaths specified")
+		return fmt.Errorf("config error: no notebooks specified")
 	}
 
 	// Assert that each path and name is unique:
@@ -244,7 +243,7 @@ func (c *Config) Validate() error {
 
 		if _, ok := names[cheatpath.Name]; ok {
 			return fmt.Errorf(
-				"config error: cheatpath name is not unique: %s",
+				"config error: notebook name is not unique: %s",
 				cheatpath.Name,
 			)
 		}
@@ -252,7 +251,7 @@ func (c *Config) Validate() error {
 
 		if _, ok := paths[cheatpath.Path]; ok {
 			return fmt.Errorf(
-				"config error: cheatpath path is not unique: %s",
+				"config error: notebook path is not unique: %s",
 				cheatpath.Path,
 			)
 		}
@@ -268,7 +267,7 @@ func (c *Config) Validate() error {
 		"terminal16m": true,
 	}
 	if _, ok := formatters[c.Formatter]; !ok {
-		return fmt.Errorf("config error: formatter is invalid: %s", c.Formatter)
+		return fmt.Errorf("config error: header is invalid: %s", c.Formatter)
 	}
 
 	return nil

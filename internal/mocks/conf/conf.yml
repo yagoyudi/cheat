@@ -4,14 +4,14 @@ editor: nvim
 colorize: true
 
 notepaths:
-  - path: ~/.dotfiles/cheat/community
+  - path: ~/.dotfiles/note/community
     tags: [ community ]
     readonly: true
 
-  - path: ~/.dotfiles/cheat/work
+  - path: ~/.dotfiles/note/work
     tags: [ work ]
     readonly: false
 
-  - path: ~/.dotfiles/cheat/personal
+  - path: ~/.dotfiles/note/personal
     tags: [ personal ]
     readonly: false

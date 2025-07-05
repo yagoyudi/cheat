@@ -12,7 +12,7 @@ import (
 
 // Asserts that notes are properly consolidated
 func TestConsolidate(t *testing.T) {
-	notes := []map[string]note.Note{
+	notesByName := []map[string]note.Note{
 		{
 			"foo": {Name: "foo", Path: "community/foo"},
 			"bar": {Name: "bar", Path: "community/bar"},
@@ -23,23 +23,23 @@ func TestConsolidate(t *testing.T) {
 		},
 	}
 
-	consolidated := Consolidate(notes)
+	consolidatedNote := Consolidate(notesByName)
 	want := map[string]note.Note{
 		"foo": {Name: "foo", Path: "community/foo"},
 		"bar": {Name: "bar", Path: "local/bar"},
 		"baz": {Name: "baz", Path: "local/baz"},
 	}
-	assert.Equal(t, want, consolidated, "failed to consolidate cheatpaths")
+	assert.Equal(t, want, consolidatedNote, "failed to consolidate notebooks")
 }
 
 // Asserts that Sort properly sorts notes
 func TestSort(t *testing.T) {
-	notes := map[string]note.Note{
+	notesByName := map[string]note.Note{
 		"foo": {Name: "foo"},
 		"bar": {Name: "bar"},
 		"baz": {Name: "baz"},
 	}
-	sorted := Sort(notes)
+	sorted := Sort(notesByName)
 	want := []string{"bar", "baz", "foo"}
 	for i, got := range sorted {
 		assert.Equal(t, want[i], got.Name, "sort returned incorrect value")
@@ -123,25 +123,25 @@ func TestFilterMultiTag(t *testing.T) {
 
 // Asserts that notes on valid notepaths can be loaded successfully
 func TestLoad(t *testing.T) {
-	notepaths := []notebook.Notebook{
+	notebooks := []notebook.Notebook{
 		{
 			Name:     "community",
-			Path:     path.Join(mock.Path("cheatsheets"), "community"),
+			Path:     path.Join(mock.Path("notebooks"), "community"),
 			ReadOnly: true,
 		},
 		{
 			Name:     "personal",
-			Path:     path.Join(mock.Path("cheatsheets"), "personal"),
+			Path:     path.Join(mock.Path("notebooks"), "personal"),
 			ReadOnly: false,
 		},
 	}
 
-	notes, err := Load(notepaths)
-	assert.NoError(t, err, "failed to load cheatsheets")
+	notes, err := Load(notebooks)
+	assert.NoError(t, err, "failed to load notebooks")
 
 	// Assert that the correct number of note loaded:
 	want := 4
-	assert.Equal(t, want, len(notes), "failed to load correct number of cheatsheets")
+	assert.Equal(t, want, len(notes), "failed to load correct number of notebooks")
 }
 
 // Asserts that an error is returned if a path is invalid

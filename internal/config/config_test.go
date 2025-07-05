@@ -7,37 +7,32 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/yagoyudi/cheat/internal/mock"
-	"github.com/yagoyudi/cheat/internal/notebook"
+	"github.com/yagoyudi/note/internal/mock"
+	"github.com/yagoyudi/note/internal/notebook"
 )
 
-// TestConfig asserts that the configs are loaded correctly
+// Asserts that the configs are loaded correctly
 func TestConfigSuccessful(t *testing.T) {
-
-	// initialize a config
-	conf, err := New(map[string]interface{}{}, mock.Path("conf/conf.yml"), false)
+	conf, err := New(map[string]any{}, mock.Path("conf/conf.yml"), false)
 	assert.NoError(t, err, "failed to parse config file")
-	assert.Equal(t, "vim", conf.Editor, "failed to set editor")
+	assert.Equal(t, "nvim", conf.Editor, "failed to set editor")
 	assert.Equal(t, true, conf.Colorize, "failed to set colorize")
 
-	// get the user's home directory (with ~ expanded)
 	home, err := os.UserHomeDir()
 	assert.NoError(t, err, "failed to get homedir")
-
-	// assert that the cheatpaths are correct
 	want := []notebook.Notebook{
 		{
-			Path:     filepath.Join(home, ".dotfiles", "cheat", "community"),
+			Path:     filepath.Join(home, ".dotfiles", "note", "community"),
 			ReadOnly: true,
 			Tags:     []string{"community"},
 		},
 		{
-			Path:     filepath.Join(home, ".dotfiles", "cheat", "work"),
+			Path:     filepath.Join(home, ".dotfiles", "note", "work"),
 			ReadOnly: false,
 			Tags:     []string{"work"},
 		},
 		{
-			Path:     filepath.Join(home, ".dotfiles", "cheat", "personal"),
+			Path:     filepath.Join(home, ".dotfiles", "note", "personal"),
 			ReadOnly: false,
 			Tags:     []string{"personal"},
 		},
@@ -45,36 +40,30 @@ func TestConfigSuccessful(t *testing.T) {
 	assert.Equal(t, want, conf.Notebooks, "failed to return expected results")
 }
 
-// TestConfigFailure asserts that an error is returned if the config file
-// cannot be read.
+// Asserts that an error is returned if the config file cannot be read
 func TestConfigFailure(t *testing.T) {
-
-	// attempt to read a non-existent config file
-	_, err := New(map[string]interface{}{}, "/does-not-exit", false)
+	_, err := New(map[string]any{}, "/does-not-exit", false)
 	assert.Error(t, err, "failed to error on unreadable config")
 }
 
-// TestEmptyEditor asserts that envvars are respected if an editor is not
-// specified in the configs
+// Asserts that envs are respected if an editor is not specified in the configs
 func TestEmptyEditor(t *testing.T) {
-
-	// clear the environment variables
+	// Clean envs:
 	os.Setenv("VISUAL", "")
 	os.Setenv("EDITOR", "")
 
-	// initialize a config
-	conf, err := New(map[string]interface{}{}, mock.Path("conf/empty.yml"), false)
+	conf, err := New(map[string]any{}, mock.Path("conf/empty.yml"), false)
 	assert.NoError(t, err, "failed to initialize test")
 
-	// set editor, and assert that it is respected
+	// Set editor, and assert that it is respected:
 	os.Setenv("EDITOR", "foo")
-	conf, err = New(map[string]interface{}{}, mock.Path("conf/empty.yml"), false)
+	conf, err = New(map[string]any{}, mock.Path("conf/empty.yml"), false)
 	assert.NoError(t, err, "failed to init configs")
 	assert.Equal(t, "foo", conf.Editor, "failed to respect editor")
 
-	// set visual, and assert that it overrides editor
+	// Set visual, and assert that it overrides editor:
 	os.Setenv("VISUAL", "bar")
-	conf, err = New(map[string]interface{}{}, mock.Path("conf/empty.yml"), false)
+	conf, err = New(map[string]any{}, mock.Path("conf/empty.yml"), false)
 	assert.NoError(t, err, "failed to init configs")
 	assert.Equal(t, "bar", conf.Editor, "failed to respect editor")
 }
@@ -153,12 +142,12 @@ func TestValidatePathsNix(t *testing.T) {
 		paths, err := Paths(os, home, envvars)
 		assert.NoError(t, err, "paths returned an error")
 		want := []string{
-			"/home/bar/cheat/conf.yml",
-			"/home/foo/.config/cheat/conf.yml",
-			"/home/foo/.cheat/conf.yml",
-			"/etc/cheat/conf.yml",
+			"/home/bar/note/conf.yml",
+			"/home/foo/.config/note/conf.yml",
+			"/home/foo/.note/conf.yml",
+			"/etc/note/conf.yml",
 		}
-		assert.Equal(t, want, paths, "failed to return exptected paths")
+		assert.Equal(t, want, paths, "failed to return expected paths")
 	}
 }
 
@@ -176,9 +165,9 @@ func TestValidatePathsNixNoXDG(t *testing.T) {
 		paths, err := Paths(os, home, envvars)
 		assert.NoError(t, err, "paths returned an error")
 		want := []string{
-			"/home/foo/.config/cheat/conf.yml",
-			"/home/foo/.cheat/conf.yml",
-			"/etc/cheat/conf.yml",
+			"/home/foo/.config/note/conf.yml",
+			"/home/foo/.note/conf.yml",
+			"/etc/note/conf.yml",
 		}
 		assert.Equal(t, want, paths, "failed to return exptected paths")
 	}
@@ -194,8 +183,8 @@ func TestValidatePathsWindows(t *testing.T) {
 	paths, err := Paths("windows", home, envvars)
 	assert.NoError(t, err, "paths returned an error")
 	want := []string{
-		"/apps/cheat/conf.yml",
-		"/programs/cheat/conf.yml",
+		"/apps/note/conf.yml",
+		"/programs/note/conf.yml",
 	}
 	assert.Equal(t, want, paths, "failed to return exptected paths")
 }
@@ -257,30 +246,30 @@ func TestInvalidateMissingEditor(t *testing.T) {
 	assert.Error(t, err, "failed to invalidate config with unspecified editor")
 }
 
-// Asserts that configs without notepaths are invalidated
-func TestInvalidateMissingCheatpaths(t *testing.T) {
+// Asserts that configs without notebooks are invalidated
+func TestInvalidateMissingNotebooks(t *testing.T) {
 	conf := Config{
 		Colorize:  true,
 		Editor:    "vim",
 		Formatter: "terminal16m",
 	}
 	err := conf.Validate()
-	assert.Error(t, err, "failed to invalidate config without cheatpaths")
+	assert.Error(t, err, "failed to invalidate config without notebooks")
 }
 
-// Asserts that configs which contain invalid formatters are invalidated
-func TestMissingInvalidFormatters(t *testing.T) {
+// Asserts that configs which contain invalid header are invalidated
+func TestMissingInvalidHeaders(t *testing.T) {
 	conf := Config{
 		Colorize: true,
 		Editor:   "vim",
 	}
 	err := conf.Validate()
-	assert.Error(t, err, "failed to invalidate config without formatter")
+	assert.Error(t, err, "failed to invalidate config without header")
 }
 
-// Asserts that configs which contain notepaths with duplcated names are
+// Asserts that configs which contain notebooks with duplicated names are
 // invalidated
-func TestInvalidateDuplicateCheatpathNames(t *testing.T) {
+func TestInvalidateDuplicateNotebookNames(t *testing.T) {
 	conf := Config{
 		Colorize:  true,
 		Editor:    "vim",
@@ -301,12 +290,12 @@ func TestInvalidateDuplicateCheatpathNames(t *testing.T) {
 		},
 	}
 	err := conf.Validate()
-	assert.Error(t, err, "failed to invalidate config with cheatpaths with duplicate names")
+	assert.Error(t, err, "failed to invalidate config with notebook with duplicate names")
 }
 
-// Asserts that configs which contain notepaths with duplcated paths are
+// Asserts that configs which contain notebooks with duplcated paths are
 // invalidated
-func TestInvalidateDuplicateCheatpathPaths(t *testing.T) {
+func TestInvalidateDuplicateNotebookPaths(t *testing.T) {
 	conf := Config{
 		Colorize:  true,
 		Editor:    "vim",
@@ -327,5 +316,5 @@ func TestInvalidateDuplicateCheatpathPaths(t *testing.T) {
 		},
 	}
 	err := conf.Validate()
-	assert.Error(t, err, "failed to invalidate config with cheatpaths with duplicate paths")
+	assert.Error(t, err, "failed to invalidate config with notebooks with duplicate paths")
 }
