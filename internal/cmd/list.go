@@ -11,128 +11,91 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/yagoyudi/cheat/internal/cheatpath"
 	"github.com/yagoyudi/cheat/internal/config"
 	"github.com/yagoyudi/cheat/internal/display"
-	"github.com/yagoyudi/cheat/internal/sheet"
-	"github.com/yagoyudi/cheat/internal/sheets"
+	"github.com/yagoyudi/cheat/internal/note"
+	"github.com/yagoyudi/cheat/internal/notebook"
+	"github.com/yagoyudi/cheat/internal/notes"
 )
 
 func init() {
-	listCmd.Flags().StringP("tag", "t", "", "filter cheatsheets by tag")
-	listCmd.Flags().StringP("path", "p", "", "filter cheatpath")
+	listCmd.Flags().StringP("tag", "t", "", "filter notes by tag")
+	listCmd.Flags().StringP("path", "p", "", "filter notes by notebook path")
 }
 
 var listCmd = &cobra.Command{
-	Use:   "ls [cheatsheet]",
-	Short: "Lists all available cheatsheets",
+	Use:   "ls [note]",
+	Short: "Lists all available notes",
 	Example: `  cheat ls
   cheat ls -p personal
   cheat ls -t networking`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		var conf config.Config
-		if err := viper.Unmarshal(&conf); err != nil {
-			return err
-		}
+		cobra.CheckErr(viper.Unmarshal(&conf))
 
 		if cmd.Flags().Changed("path") {
 			path, err := cmd.Flags().GetString("path")
-			if err != nil {
-				return err
-			}
-			conf.Cheatpaths, err = cheatpath.Filter(conf.Cheatpaths, path)
-			if err != nil {
-				return err
-			}
+			cobra.CheckErr(err)
+
+			conf.Notebooks, err = notebook.Filter(conf.Notebooks, path)
+			cobra.CheckErr(err)
 		}
 
-		// load the cheatsheets
-		cheatsheets, err := sheets.Load(conf.Cheatpaths)
-		if err != nil {
-			return fmt.Errorf("cmd: failed to list cheatsheets: %v", err)
-		}
+		loadedNotes, err := notes.Load(conf.Notebooks)
+		cobra.CheckErr(err)
 
-		// filter cheatsheets by tag if --tag was provided
 		if cmd.Flags().Changed("tag") {
 			tag, err := cmd.Flags().GetString("tag")
-			if err != nil {
-				return err
-			}
-			cheatsheets = sheets.Filter(
-				cheatsheets,
-				strings.Split(tag, ","),
-			)
+			cobra.CheckErr(err)
+			loadedNotes = notes.Filter(loadedNotes, strings.Split(tag, ","))
 		}
 
-		// instead of "consolidating" all of the cheatsheets (ie, overwriting
-		// global sheets with local sheets), here we simply want to create a
-		// slice containing all sheets.
-		flattened := []sheet.Sheet{}
-		for _, pathsheets := range cheatsheets {
-			for _, s := range pathsheets {
-				flattened = append(flattened, s)
+		// Instead of "consolidating" all of the notes (ie, overwriting global
+		// notes with local notes), here we simply want to create a slice
+		// containing all notes:
+		flattenedNotes := []note.Note{}
+		for _, pathnotes := range loadedNotes {
+			for _, note := range pathnotes {
+				flattenedNotes = append(flattenedNotes, note)
 			}
 		}
 
-		// sort the "flattened" sheets alphabetically
-		sort.Slice(flattened, func(i, j int) bool {
-			return flattened[i].Title < flattened[j].Title
+		// Sort the "flattened" notes alphabetically:
+		sort.Slice(flattenedNotes, func(i, j int) bool {
+			return flattenedNotes[i].Name < flattenedNotes[j].Name
 		})
 
-		// filter if <cheatsheet> was specified
-		// NB: our docopt specification is misleading here. When used in conjunction
-		// with `-l`, `<cheatsheet>` is really a pattern against which to filter
-		// sheet titles.
+		// Filter if [note] was specified:
+		// NOTE: our docopt specification is misleading here. When used in
+		// conjunction with `-l`, `[note]` is really a pattern against which to
+		// filter note titles.
 		if len(args) >= 1 {
-			cheatsheet := args[0]
-			// initialize a slice of filtered sheets
-			filtered := []sheet.Sheet{}
+			noteName := args[0]
+			filteredNotes := []note.Note{}
 
-			// initialize our filter pattern
-			pattern := "(?i)" + cheatsheet
-
-			// compile the regex
+			pattern := "(?i)" + noteName
 			reg, err := regexp.Compile(pattern)
-			if err != nil {
-				return fmt.Errorf("cmd: failed to compile regexp: %s, %v", pattern, err)
-			}
+			cobra.CheckErr(err)
 
-			// iterate over each cheatsheet, and pass-through those which match the
-			// filter pattern
-			for _, s := range flattened {
-				if reg.MatchString(s.Title) {
-					filtered = append(filtered, s)
+			for _, note := range flattenedNotes {
+				if reg.MatchString(note.Name) {
+					filteredNotes = append(filteredNotes, note)
 				}
 			}
-
-			flattened = filtered
+			flattenedNotes = filteredNotes
 		}
 
-		// return exit code 2 if no cheatsheets are available
-		if len(flattened) == 0 {
+		if len(flattenedNotes) == 0 {
 			os.Exit(2)
 		}
 
-		// initialize a tabwriter to produce cleanly columnized output
 		var out bytes.Buffer
 		w := tabwriter.NewWriter(&out, 0, 0, 1, ' ', 0)
-
-		// write a header row
 		fmt.Fprintln(w, "title:\tfile:\ttags:")
-
-		// generate sorted, columnized output
-		for _, sheet := range flattened {
-			fmt.Fprintf(
-				w,
-				"%s\t%s\t%s\n",
-				sheet.Title, sheet.Path, strings.Join(sheet.Tags, ","),
-			)
+		for _, note := range flattenedNotes {
+			fmt.Fprintf(w, "%s\t%s\t%s\n", note.Name, note.Path, strings.Join(note.Tags, ","))
 		}
-
-		// write columnized output to stdout
 		w.Flush()
 		display.Write(out.String(), conf)
-
-		return nil
 	},
 }

@@ -7,10 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/yagoyudi/cheat/internal/cheatpath"
 	"github.com/yagoyudi/cheat/internal/config"
 	"github.com/yagoyudi/cheat/internal/display"
-	"github.com/yagoyudi/cheat/internal/sheets"
+	"github.com/yagoyudi/cheat/internal/notes"
 )
 
 func init() {
@@ -19,96 +18,65 @@ func init() {
 }
 
 var viewCmd = &cobra.Command{
-	Use:   "view [cheatsheet]",
-	Short: "Displays a cheatsheet for viewing",
-	Args:  cobra.ExactArgs(1),
+	Use:     "view [cheatsheet]",
+	Aliases: []string{"v"},
+	Short:   "Displays a cheatsheet for viewing",
+	Args:    cobra.ExactArgs(1),
 	Example: `  cheat view kubectl
   cheat view kubectl -t community`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		cheatsheet := args[0]
+	Run: func(cmd *cobra.Command, args []string) {
+		noteName := args[0]
 
 		allFlag, err := cmd.Flags().GetBool("all")
-		if err != nil {
-			return fmt.Errorf("cmd: %v", err)
-		}
+		cobra.CheckErr(err)
+
 		tags, err := cmd.Flags().GetString("tag")
-		if err != nil {
-			return fmt.Errorf("cmd: %v", err)
-		}
+		cobra.CheckErr(err)
 
 		var conf config.Config
-		if err := viper.Unmarshal(&conf); err != nil {
-			return fmt.Errorf("cmd: %v", err)
-		}
+		cobra.CheckErr(viper.Unmarshal(&conf))
 
-		var cheatpaths []cheatpath.Cheatpath
-		if err := viper.UnmarshalKey("cheatpaths", &cheatpaths); err != nil {
-			return fmt.Errorf("cmd: %v", err)
-		}
+		loadedNotes, err := notes.Load(conf.Notebooks)
+		cobra.CheckErr(err)
 
-		// load the cheatsheets
-		cheatsheets, err := sheets.Load(cheatpaths)
-		if err != nil {
-			return fmt.Errorf("cmd: %v", err)
-		}
-
-		// filter cheatcheats by tag if --tag was provided
+		// Filter notes by tag if --tag was provided:
 		if cmd.Flags().Changed("tag") {
-			cheatsheets = sheets.Filter(
-				cheatsheets,
-				strings.Split(tags, ","),
-			)
+			loadedNotes = notes.Filter(loadedNotes, strings.Split(tags, ","))
 		}
 
-		// if --all was passed, display cheatsheets from all cheatpaths
+		// If --all was passed, display notes from all notepaths:
 		if allFlag {
-			// iterate over the cheatpaths
 			out := ""
-			for _, cheatpath := range cheatsheets {
-
-				// if the cheatpath contains the specified cheatsheet, display
-				// it
-				if sheet, ok := cheatpath[cheatsheet]; ok {
-
-					// identify the matching cheatsheet
-					out += fmt.Sprintf("%s %s\n",
-						sheet.Title,
-						display.Faint(fmt.Sprintf("(%s)", sheet.CheatPath), conf),
-					)
-
-					// apply colorization if requested
-					if conf.Color() {
-						sheet.Colorize(conf)
-					}
-
-					// display the cheatsheet
-					out += display.Indent(sheet.Text) + "\n"
+			for _, noteByName := range loadedNotes {
+				note, ok := noteByName[noteName]
+				if !ok {
+					continue
 				}
-			}
 
-			// display and exit
+				out += fmt.Sprintf("%s %s\n", note.Name, display.Faint(fmt.Sprintf("(%s)", note.Notebook), conf))
+				if conf.Color() {
+					note.Colorize(conf)
+				}
+				out += display.Indent(note.Body) + "\n"
+			}
 			display.Write(strings.TrimSuffix(out, "\n"), conf)
 			os.Exit(0)
 		}
 
-		// otherwise, consolidate the cheatsheets found on all paths into a single
-		// map of `title` => `sheet` (ie, allow more local cheatsheets to override
-		// less local cheatsheets)
-		consolidated := sheets.Consolidate(cheatsheets)
+		// Consolidate the notes found on all paths into a single map of
+		// `title` => `note` (ie, allow more local notes to override less
+		// local notes):
+		consolidatedNotes := notes.Consolidate(loadedNotes)
 
-		// fail early if the requested cheatsheet does not exist
-		sheet, ok := consolidated[cheatsheet]
+		// Fail early if the requested note does not exist:
+		note, ok := consolidatedNotes[noteName]
 		if !ok {
-			return fmt.Errorf("cmd: No cheatsheet found for '%s'\n", cheatsheet)
+			fmt.Printf("Error: no cheatsheet found for '%s'\n", noteName)
+			os.Exit(0)
 		}
-
-		// apply colorization if requested
 		if conf.Color() {
-			sheet.Colorize(conf)
+			note.Colorize(conf)
 		}
-
-		// display the cheatsheet
-		display.Write(sheet.Text, conf)
-		return nil
+		display.Write(note.Body, conf)
 	},
 }

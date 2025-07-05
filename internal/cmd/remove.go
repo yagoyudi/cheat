@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/yagoyudi/cheat/internal/config"
-	"github.com/yagoyudi/cheat/internal/sheets"
+	"github.com/yagoyudi/cheat/internal/notes"
 )
 
 func init() {
@@ -34,14 +34,14 @@ var removeCmd = &cobra.Command{
 		}
 
 		// load the cheatsheets
-		cheatsheets, err := sheets.Load(conf.Cheatpaths)
+		cheatsheets, err := notes.Load(conf.Notebooks)
 		if err != nil {
 			return err
 		}
 
 		// filter cheatcheats by tag if --tag was provided
 		if cmd.Flags().Changed("tag") {
-			cheatsheets = sheets.Filter(
+			cheatsheets = notes.Filter(
 				cheatsheets,
 				strings.Split(tags, ","),
 			)
@@ -50,7 +50,7 @@ var removeCmd = &cobra.Command{
 		// consolidate the cheatsheets found on all paths into a single map of
 		// `title` => `sheet` (ie, allow more local cheatsheets to override less
 		// local cheatsheets)
-		consolidated := sheets.Consolidate(cheatsheets)
+		consolidated := notes.Consolidate(cheatsheets)
 
 		// fail early if the requested cheatsheet does not exist
 		sheet, ok := consolidated[cheatsheet]

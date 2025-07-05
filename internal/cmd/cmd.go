@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -10,28 +9,20 @@ import (
 )
 
 func init() {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
 	home, err := os.UserHomeDir()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "cheat: cmd: %v", err)
-		os.Exit(1)
-	}
+	cobra.CheckErr(err)
 	configPath := filepath.Join(home, ".config", "cheat")
 	viper.AddConfigPath(configPath)
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
 	viper.AutomaticEnv()
-
-	if err := viper.ReadInConfig(); err != nil {
-		fmt.Fprintf(os.Stderr, "cheat: cmd: %v", err)
-		os.Exit(1)
-	}
+	cobra.CheckErr(viper.ReadInConfig())
 
 	rootCmd.AddCommand(
 		listCmd,
 		viewCmd,
 		editCmd,
-		versionCmd,
-		directoriesCmd,
+		notebooksCmd,
 		removeCmd,
 		searchCmd,
 		initCmd,

@@ -7,34 +7,26 @@ import (
 	"github.com/spf13/viper"
 	"github.com/yagoyudi/cheat/internal/config"
 	"github.com/yagoyudi/cheat/internal/display"
-	"github.com/yagoyudi/cheat/internal/sheets"
+	"github.com/yagoyudi/cheat/internal/notes"
 )
 
 var tagsCmd = &cobra.Command{
 	Use:     `tags`,
+	Aliases: []string{"t"},
 	Short:   `Lists all tags in use`,
 	Example: `  cheat tags`,
-	RunE: func(_ *cobra.Command, _ []string) error {
+	Run: func(_ *cobra.Command, _ []string) {
 		var conf config.Config
-		if err := viper.Unmarshal(&conf); err != nil {
-			return err
-		}
+		cobra.CheckErr(viper.Unmarshal(&conf))
 
-		// load the cheatsheets
-		cheatsheets, err := sheets.Load(conf.Cheatpaths)
-		if err != nil {
-			return err
-		}
+		loadedNotes, err := notes.Load(conf.Notebooks)
+		cobra.CheckErr(err)
 
-		// assemble the output
 		out := ""
-		for _, tag := range sheets.Tags(cheatsheets) {
+		for _, tag := range notes.Tags(loadedNotes) {
 			out += fmt.Sprintln(tag)
 		}
 
-		// display the output
 		display.Write(out, conf)
-
-		return nil
 	},
 }

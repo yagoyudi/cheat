@@ -2,86 +2,65 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/yagoyudi/cheat/internal/cheatpath"
 	"github.com/yagoyudi/cheat/internal/config"
 	"github.com/yagoyudi/cheat/internal/display"
-	"github.com/yagoyudi/cheat/internal/sheets"
+	"github.com/yagoyudi/cheat/internal/notebook"
+	"github.com/yagoyudi/cheat/internal/notes"
 )
 
 func init() {
-	searchCmd.Flags().StringP("tag", "t", "", "filter cheatsheets by tag")
-	searchCmd.Flags().StringP("cheatsheet", "c", "", "constrain the search only to matching cheatsheets")
-	searchCmd.Flags().BoolP("regex", "r", false, "treat search <phrase> as a regex")
-	searchCmd.Flags().StringP("path", "p", "", "filter the cheatpaths")
+	searchCmd.Flags().StringP("tag", "t", "", "filter notes by tag")
+	searchCmd.Flags().StringP("note", "n", "", "constrain the search only to matching notes")
+	searchCmd.Flags().BoolP("regex", "r", false, "treat search [phrase] as a regex")
+	searchCmd.Flags().StringP("path", "p", "", "filter the notebooks")
 }
 
 var searchCmd = &cobra.Command{
 	Use:     "search [phrase]",
+	Aliases: []string{"s"},
 	Short:   "Searches for strings in cheatsheets",
 	Args:    cobra.ExactArgs(1),
 	Example: `  cheat search '(?:[0-9]{1,3}\.){3}[0-9]{1,3}' -p personal -t networking -r`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		phrase := args[0]
 
 		regexFlag, err := cmd.Flags().GetBool("regex")
-		if err != nil {
-			return err
-		}
-		cheatsheet, err := cmd.Flags().GetString("cheatsheet")
-		if err != nil {
-			return err
-		}
+		cobra.CheckErr(err)
+
+		noteName, err := cmd.Flags().GetString("note")
+		cobra.CheckErr(err)
 
 		var conf config.Config
-		if err := viper.Unmarshal(&conf); err != nil {
-			return err
-		}
+		cobra.CheckErr(viper.Unmarshal(&conf))
 
 		if cmd.Flags().Changed("path") {
 			path, err := cmd.Flags().GetString("path")
-			if err != nil {
-				return err
-			}
-			conf.Cheatpaths, err = cheatpath.Filter(conf.Cheatpaths, path)
-			if err != nil {
-				return err
-			}
+			cobra.CheckErr(err)
+
+			conf.Notebooks, err = notebook.Filter(conf.Notebooks, path)
+			cobra.CheckErr(err)
 		}
 
-		// load the cheatsheets
-		cheatsheets, err := sheets.Load(conf.Cheatpaths)
-		if err != nil {
-			return err
-		}
+		loadedNotes, err := notes.Load(conf.Notebooks)
+		cobra.CheckErr(err)
 
-		// filter cheatcheats by tag if --tag was provided
 		if cmd.Flags().Changed("tag") {
 			tags, err := cmd.Flags().GetString("tag")
-			if err != nil {
-				return err
-			}
-			cheatsheets = sheets.Filter(
-				cheatsheets,
-				strings.Split(tags, ","),
-			)
+			cobra.CheckErr(err)
+			loadedNotes = notes.Filter(loadedNotes, strings.Split(tags, ","))
 		}
 
-		// iterate over each cheatpath
 		out := ""
-		for _, pathcheats := range cheatsheets {
-
-			// sort the cheatsheets alphabetically, and search for matches
-			for _, sheet := range sheets.Sort(pathcheats) {
-
-				// if -c was provided, constrain the search only to matching
-				// cheatsheets
-				if cheatsheet != "" && sheet.Title != args[1] {
+		for _, noteByName := range loadedNotes {
+			for _, note := range notes.Sort(noteByName) {
+				// If -n was provided, constrain the search only to matching
+				// notes:
+				if noteName != "" && note.Name != args[1] {
 					continue
 				}
 
@@ -93,48 +72,34 @@ var searchCmd = &cobra.Command{
 					pattern = phrase
 				}
 
-				// compile the regex
 				reg, err := regexp.Compile(pattern)
-				if err != nil {
-					fmt.Fprintf(os.Stderr, "failed to compile regexp: %s, %v\n", pattern, err)
-					os.Exit(1)
-				}
+				cobra.CheckErr(err)
 
-				// `Search` will return text entries that match the search terms.
-				// We're using it here to overwrite the prior cheatsheet Text,
-				// filtering it to only what is relevant.
-				sheet.Text = sheet.Search(reg)
-
-				// if the sheet did not match the search, ignore it and move on
-				if sheet.Text == "" {
+				note.Body = note.Search(reg)
+				if note.Body == "" {
 					continue
 				}
 
-				// if colorization was requested, apply it here
 				if conf.Color() {
-					sheet.Colorize(conf)
+					note.Colorize(conf)
 				}
 
-				// display the cheatsheet body
-				out += fmt.Sprintf(
-					"%s %s\n%s\n",
-					// append the cheatsheet title
-					sheet.Title,
-					// append the cheatsheet path
-					display.Faint(fmt.Sprintf("(%s)", sheet.CheatPath), conf),
-					// indent each line of content
-					display.Indent(sheet.Text),
+				// Display the cheatsheet body:
+				out += fmt.Sprintf("%s %s\n%s\n",
+					// Append the note title:
+					note.Name,
+					// Append the notebook:
+					display.Faint(fmt.Sprintf("(%s)", note.Notebook), conf),
+					// Indent each line of content:
+					display.Indent(note.Body),
 				)
 			}
 		}
 
-		// trim superfluous newlines
 		out = strings.TrimSpace(out)
 
-		// display the output
-		// NB: resist the temptation to call `display.Write` multiple times in the
+		// NOTE: resist the temptation to call `display.Write` multiple times in the
 		// loop above. That will not play nicely with the paginator.
 		display.Write(out, conf)
-		return nil
 	},
 }
